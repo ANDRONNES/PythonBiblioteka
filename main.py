@@ -1,6 +1,8 @@
 import sqlite3
+from Models import *
 
-conn = sqlite3.connect('biblioteka.db')
+
+conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
 cursor.execute('''
 CREATE TABLE Wypozyczenie (
@@ -17,3 +19,6 @@ CREATE TABLE Wypozyczenie (
     ON DELETE CASCADE
 );
 ''')
+
+
+
