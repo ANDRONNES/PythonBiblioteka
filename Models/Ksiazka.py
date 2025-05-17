@@ -2,13 +2,12 @@ from dataclasses import dataclass
 
 @dataclass
 class Ksiazka:
-    # Id_ksiazki : float #int??
-    Id_ksiazka : float #int??
+
+    Id_ksiazka : int #int??
     Tytul : str
-    #Autor_id_autor : int
-    Autor_id : int
+    Autor_imie : str
+    Autor_nazwisko:str
     Numer_ISBN : str
     Wydawnictwo : str
+    status_ksiazki: int
     Liczba_stron : int
-    #Status_id_statusu : int
-    Status_id : int
