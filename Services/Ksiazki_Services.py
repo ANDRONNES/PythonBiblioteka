@@ -3,7 +3,7 @@
 
 import sqlite3
 
-
+from Models import Ksiazka
 
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
@@ -68,12 +68,19 @@ def delete_book():
     print("książka o id: ",idKsiazki, "została usunięta")
 
 def get_all_books():
-    cursor.execute('SELECT id_ksiazki, Tytul,Numer_ISBN,Status.Nazwa FROM Ksiazka JOIN Status on Ksiazka.Status_id_statusu = Status.id_statusu')
+    cursor.execute('SELECT id_ksiazki, Tytul,Autor.Imie,Autor.Nazwisko,Numer_ISBN,Wydawnictwo,Status.Nazwa,Liczba_stron FROM Ksiazka JOIN Status on Ksiazka.Status_id_statusu = Status.id_statusu JOIN Autor ON Ksiazka.Autor_id_autora = Autor.id_autora' )
     rows  = cursor.fetchall()
-    for id_ksiazki, tytul, numer_isbn, status in rows:
-        print(f"ID: {id_ksiazki}, Tytuł: {tytul}, ISBN: {numer_isbn}, Status: {status}")
+
+    books = []
+    for id_ksiazki, tytul,autor_imie,autor_nazwisko, numer_isbn,wydawnictwo, liczba_Stron,status, in rows:
+     book = Ksiazka(id_ksiazki,tytul,autor_imie,autor_nazwisko,numer_isbn,wydawnictwo,liczba_Stron,status)
+     books.append(book)
+
+
     if len(rows) == 0:
         print("W bibliotece nie ma żadnej książki")
+
+    return books
 
 def edit_book():
     id_ksiazki = input("Podaj id ksiazki którą chesz edytować ")
