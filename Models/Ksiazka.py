@@ -3,7 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class Ksiazka:
 
-    Id_ksiazka : int #int??
+    Id_ksiazka : int
     Tytul : str
     Autor_imie : str
     Autor_nazwisko:str

@@ -2,6 +2,6 @@ from dataclasses import dataclass
 
 @dataclass
 class Status:
-    #Id_statusu : int
-    Status_id : int
+
+    Id_status : int
     Nazwa : str

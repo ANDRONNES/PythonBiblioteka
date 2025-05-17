@@ -57,7 +57,6 @@ def get_status_id(nazwa_statusu:str):
         return row[0]
 
 def delete_book():
-
     idKsiazki = int(input("podaj id ksiązki którą chcesz usunąć"))
     cursor.execute('DELETE FROM Ksiazka WHERE id_ksiazki = ?', (idKsiazki,))
 
@@ -121,4 +120,9 @@ def edit_book():
             conn.commit()
             print("Status ksiązki został zmieniony")
 
+
+def isBookExists(id_ksiazki : int) -> bool:
+    cursor.execute('Select count(*) from Ksiazka where id_ksiazki = ? ',(id_ksiazki,))
+    result = cursor.fetchone()[0]
+    return result > 0
 
