@@ -2,7 +2,13 @@
 
 
 import sqlite3
+import pandas as pd
 
+from colorama import Fore, Style
+
+from Exceptions import InvalidDateFormat_Exception
+from Exceptions.No_Books_Exception import No_Books_Exception
+from Exceptions.Unknown_Operation_Exception import Unknown_Operation_Exception
 from Models import Ksiazka
 
 conn = sqlite3.connect('Data Base/biblioteka.db')
@@ -66,59 +72,95 @@ def delete_book():
 
     print("książka o id: ",idKsiazki, "została usunięta")
 
+def koloruj_status(status):
+    if status == "Dostępna":
+        return f"{Fore.GREEN}{status}{Style.RESET_ALL}"
+    elif status == "Wypożyczona":
+        return f"{Fore.RED}{status}{Style.RESET_ALL}"
+    elif status == "Zarezerwowana":
+        return f"{Fore.YELLOW}{status}{Style.RESET_ALL}"
+    else:
+        return status
+
 def get_all_books():
-    cursor.execute('SELECT id_ksiazki, Tytul,Autor.Imie,Autor.Nazwisko,Numer_ISBN,Wydawnictwo,Status.Nazwa,Liczba_stron FROM Ksiazka JOIN Status on Ksiazka.Status_id_statusu = Status.id_statusu JOIN Autor ON Ksiazka.Autor_id_autora = Autor.id_autora' )
-    rows  = cursor.fetchall()
-
-    books = []
-    for id_ksiazki, tytul,autor_imie,autor_nazwisko, numer_isbn,wydawnictwo, liczba_Stron,status, in rows:
-     book = Ksiazka(id_ksiazki,tytul,autor_imie,autor_nazwisko,numer_isbn,wydawnictwo,liczba_Stron,status)
-     books.append(book)
-
+    cursor.execute('''
+        SELECT id_ksiazki, Tytul, Autor.Imie, Autor.Nazwisko,
+               Numer_ISBN, Wydawnictwo, Status.Nazwa, Liczba_stron
+        FROM Ksiazka
+        JOIN Status ON Ksiazka.Status_id_statusu = Status.id_statusu
+        JOIN Autor ON Ksiazka.Autor_id_autora = Autor.id_autora
+    ''')
+    rows = cursor.fetchall()
 
     if len(rows) == 0:
-        print("W bibliotece nie ma żadnej książki")
+       raise No_Books_Exception("W bibliotece nie ma aktualnie żadnych książek")
+
+    books = []
+    for id_ksiazki, tytul, autor_imie, autor_nazwisko, numer_isbn, wydawnictwo, status, liczba_stron in rows:
+        books.append({
+            "Id książki": str(id_ksiazki),
+            "Tytuł": tytul,
+            "Imie autora": autor_imie,
+            "Nazwisko autora": autor_nazwisko,
+            "ISBN": numer_isbn,
+            "Wydawnictwo": wydawnictwo,
+            "Status": status,
+            "Liczba stron": str(liczba_stron)
+        })
+
+    df = pd.DataFrame(books)
+    df["Status"] = df["Status"].apply(koloruj_status)
+    return df
+
+
 
     return books
 
 def edit_book():
     id_ksiazki = input("Podaj id ksiazki którą chesz edytować ")
     whatToEdit = input("Podaj który parametr książki chesz edytować ")
-    match whatToEdit:
-        case "Tytul":
-            title =input("Podaj nowy tytuł ")
-            cursor.execute('UPDATE Ksiazka SET Tytul = ? WHERE id_ksiazki =?',(title,id_ksiazki))
-            conn.commit()
-            print("Tytuł książki został zmieniony ")
-        case "Numer_ISBN":
-            isbn = input("Podaj nowy ISBN ")
-            cursor.execute('UPDATE Ksiazka SET Numer_ISBN = ? WHERE id_ksiazki =?', (isbn, id_ksiazki))
-            conn.commit()
-            print("ISBN książki został zmieniony ")
-        case "Wydawnictwo":
-            wydawnictwo = input("Podaj nowe wydawnictwo ")
-            cursor.execute('UPDATE Ksiazka SET Wydawnictwo = ? WHERE id_ksiazki =?', (wydawnictwo, id_ksiazki))
-            conn.commit()
-            print("Wydawnictwo książki zostało zmienione ")
-        case "Liczba_stron":
-            liczba_stron = input("Podaj nową lcizbe stron ")
-            cursor.execute('UPDATE Ksiazka SET Liczba_stron = ? WHERE id_ksiazki =?', (liczba_stron, id_ksiazki))
-            conn.commit()
-            print("Liczba stron książki została zmieniona")
-        case "Statu":
-            status = input("Podaj nowy status")
 
-            while (True):
-                id_status = get_status_id(status)
-                if id_status == -1:
-                    status = input(
-                        "Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
-                else:
-                    break
+    try:
+        match whatToEdit:
+            case "Tytul":
+                title =input("Podaj nowy tytuł ")
+                cursor.execute('UPDATE Ksiazka SET Tytul = ? WHERE id_ksiazki =?',(title,id_ksiazki))
+                conn.commit()
+                print("Tytuł książki został zmieniony ")
+            case "Numer_ISBN":
+                isbn = input("Podaj nowy ISBN ")
+                cursor.execute('UPDATE Ksiazka SET Numer_ISBN = ? WHERE id_ksiazki =?', (isbn, id_ksiazki))
+                conn.commit()
+                print("ISBN książki został zmieniony ")
+            case "Wydawnictwo":
+                wydawnictwo = input("Podaj nowe wydawnictwo ")
+                cursor.execute('UPDATE Ksiazka SET Wydawnictwo = ? WHERE id_ksiazki =?', (wydawnictwo, id_ksiazki))
+                conn.commit()
+                print("Wydawnictwo książki zostało zmienione ")
+            case "Liczba_stron":
+                liczba_stron = input("Podaj nową lcizbe stron ")
+                cursor.execute('UPDATE Ksiazka SET Liczba_stron = ? WHERE id_ksiazki =?', (liczba_stron, id_ksiazki))
+                conn.commit()
+                print("Liczba stron książki została zmieniona")
+            case "Status":
+                status = input("Podaj nowy status")
 
-            cursor.execute('UPDATE Ksiazka SET Status_id_statusu = ? WHERE id_ksiazki =?', (id_status, id_ksiazki))
-            conn.commit()
-            print("Status ksiązki został zmieniony")
+                while (True):
+                    id_status = get_status_id(status)
+                    if id_status == -1:
+                        status = input(
+                            "Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
+                    else:
+                        break
+
+                cursor.execute('UPDATE Ksiazka SET Status_id_statusu = ? WHERE id_ksiazki =?', (id_status, id_ksiazki))
+                conn.commit()
+                print("Status ksiązki został zmieniony")
+            case _:
+                print("Nie rozpoznano operacji, spróbuj ponownie")
+    except Unknown_Operation_Exception:
+        print("Nie rozpoznano operacji")
+
 
 
 def isBookExists(id_ksiazki : int) -> bool:
@@ -126,3 +168,18 @@ def isBookExists(id_ksiazki : int) -> bool:
     result = cursor.fetchone()[0]
     return result > 0
 
+def isBookAvailable(id_ksiazki : int) -> bool:
+    cursor.execute('Select * from Ksiazka where id_ksiazki = ? AND Status_id_statusu = ? ', (id_ksiazki,1))
+    row = cursor.fetchone()
+    if row is None:
+        return False
+    else:
+        return True
+
+def isBookReserved(id_ksiazki : int) -> bool:
+    cursor.execute('Select * FROM Ksiazka WHERE id_ksiazki = ? AND Status_id_statusu = 3 ',(id_ksiazki,))
+    row = cursor.fetchone()
+    if row is None:
+        return False
+    else:
+        return True

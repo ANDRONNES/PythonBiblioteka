@@ -1,6 +1,9 @@
 import sqlite3
 from datetime import *
+from xml.etree.ElementPath import prepare_self
 
+from Exceptions.BookNotAvailable_Exception import BookNotAvaliable_Exception
+from Exceptions.RentDoesNotExists_Exception import RentDoesNotExists_Exception
 from Models import Wypozyczenie
 from .Ksiazki_Services import *
 from .Czytelnicy_Services import *
@@ -47,7 +50,6 @@ def add_new_rent():
     except DataConflictException:
         print("Data wypozyczenia nie może być wcześniej niż data zwrotu")
 
-
 def delete_rent():
     Id_wypozycznie = int(input("Podaj id wypozyczenia które chcesz usunąć "))
     cursor.execute('Delete from Wypozyczenie Where id_wypozyczenia = ?', (Id_wypozycznie,))
@@ -59,7 +61,6 @@ def delete_rent():
             print("wypozyczenie o id: ", Id_wypozycznie, " zostało usunięte")
     except Invalid_WypozyczenieId_Exception:
         print("Nie ma wypozyczenia o takim id")
-
 
 def get_all_rents():
     cursor.execute('''SELECT w.id_wypozyczenia, k.Tytul,a.imie || ' ' || a.nazwisko AS Autor,
@@ -79,7 +80,6 @@ def get_all_rents():
         # Zrobić wyjątek na puste dane?
         print("W bibliotece nie ma żadnego wypożyczenia")
     return rents
-
 
 def edit_rent():
     print(get_all_rents())
@@ -166,3 +166,38 @@ def edit_rent():
                         print("Data zwrotu nie może być wcześniej niż data wypozyczenia")
     except Invalid_CzytelnikId_Exception:
         print("Nie ma wypozyczenia o takim ID")
+
+def przedluzenie_wypozyczenia(id_wypozyczenia:int):
+    try:
+        if not isRentExists(id_wypozyczenia):
+            raise RentDoesNotExists_Exception
+    except RentDoesNotExists_Exception:
+        print("Nie ma takiego wypożyczenia")
+    try:
+        dataDo = input("Podaj datę do kiedy chcesz przedłużyć wypożyczenie (yyyy-mm-dd)")
+        new_Data_Zwrotu = datetime.strptime(dataDo, "%Y-%m-%d").date()
+    except ValueError:
+        print("podano datę w złym formacie")
+
+    cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenia WHERE id_wypozyczenia = ?',
+                   (id_wypozyczenia,))
+    Data_Zwrotu = cursor.fetchone()[0]
+
+    try:
+        if new_Data_Zwrotu <= Data_Zwrotu:
+            raise DataConflictException
+
+        cursor.execute('UPDATE Wypozyczenie SET Data_Zwrotu = ? WHERE id_wypozyczenia = ?  ', (new_Data_Zwrotu))
+        conn.commit()
+        print("Data zwrotu została zmieniona na ",Data_Zwrotu)
+
+    except DataConflictException:
+        print("Podana nowa data nie jest dalszą datą od aktualnej")
+
+def isRentExists(id_rent:int)->bool:
+    cursor.execute('Select * FROM Wypozyczenia WHERE id_wypozyczenia = ?', (id_rent,))
+    row = cursor.fetchone()
+    if row is None:
+        return False
+    else:
+        return True
