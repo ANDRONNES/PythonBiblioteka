@@ -78,17 +78,17 @@ def edit_reader():
                                         Adres - wpisz 4 '''))
             match whatToEdit:
                 case 1:
-                    newImie = print("Podaj nowe Imie ")
+                    newImie = input("Podaj nowe Imie ")
                     cursor.execute('UPDATE Czytelnik SET Imie = ? Where id_czytelnika = ?',
                                    (newImie, id_czytelnika,))
                     conn.commit()
                 case 2:
-                    newNazwisko = print("Podaj nowe Nazwisko ")
+                    newNazwisko = input("Podaj nowe Nazwisko ")
                     cursor.execute('UPDATE Czytelnik SET Nazwisko = ? Where id_czytelnika = ?',
                                    (newNazwisko, id_czytelnika,))
                     conn.commit()
                 case 3:
-                    newNumer_Telefonu = print("Podaj nowy Numer Telefonu ")
+                    newNumer_Telefonu = input("Podaj nowy Numer Telefonu ")
                     pattern = r'^\+?\d+$'
                     try:
                         if not re.fullmatch(pattern, newNumer_Telefonu):

@@ -1,6 +1,6 @@
-from Services.Czytelnicy_Services import add_new_reader, get_all_readers
+from Services.Czytelnicy_Services import add_new_reader, get_all_readers, edit_reader
 from Services.Ksiazki_Services import add_new_book, get_all_books, delete_book
-from Services.Wypozyczenia_Services import add_new_rent, get_all_rents, delete_rent
+from Services.Wypozyczenia_Services import add_new_rent, get_all_rents, delete_rent, edit_rent, return_book
 
 #add_new_book()
 booksList = get_all_books()
@@ -11,7 +11,15 @@ print(booksList)
 readers = get_all_readers()
 print(readers)
 
-add_new_rent()
+# add_new_rent()
+# edit_rent()
 rents = get_all_rents()
 print(rents)
 # delete_rent()
+
+# edit_reader()
+
+# add_new_rent()
+# add_new_book()
+# add_new_rent()
+# return_book()

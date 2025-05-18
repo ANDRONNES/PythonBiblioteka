@@ -6,6 +6,7 @@ from datetime import date
 class Wypozyczenie:
     Id_wypozyczenie: int
     Tytul : str
+    Status : str
     Autor : str
     Czytelnik : str
     Data_Wypozyczenia: date

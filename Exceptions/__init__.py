@@ -5,3 +5,4 @@ from .InvalidDateFormat_Exception import InvalidDateFormat_Exception
 from .Invalid_Adres_Exception import Invalid_Adres_Exception
 from .Invalid_WypozyczenieId_Exception import Invalid_WypozyczenieId_Exception
 from .Invalid_NumerTelefonu_Exception import Invalid_NumerTelefonu_Exception
+from .Ksiazka_NieJestDostepna_Exception import Ksiazka_NieJestDostepna_Exception
