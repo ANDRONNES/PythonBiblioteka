@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import *
 import pandas as pd
+from tabulate import tabulate
 
 from Exceptions import InvalidDateFormat_Exception, Invalid_KsiazkaId_Exception, DataConflictException, \
     Invalid_CzytelnikId_Exception
@@ -39,6 +40,10 @@ def add_new_reservation():
                     if not isBookAvailable(Id_ksiazka):
                         raise BookNotAvaliable_Exception()
                     else:
+                        cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                                                                  VALUES (?,?,?,?)''',
+                                       (Id_czytelnik, Id_ksiazka,"Rezerwacja",Data_zakonczenia_rezerwacji))
+
                         cursor.execute('''INSERT INTO Rezerwacja (Ksiazka_id_ksiazki,Czytelnik_id_czytelnika,Data_rozpoczecia,Data_zakonczenia) 
                         VALUES(?,?,?,?)''', (Id_ksiazka, Id_czytelnik,Data_rozpoczecnia_rezerwacji, Data_zakonczenia_rezerwacji))
                         conn.commit()
@@ -95,7 +100,7 @@ def get_all_reservations():
     return df
 
 def edit_reservation():
-    print(get_all_reservations())
+    print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
     id_rezerwacji = int(input("Podaj id rezerwacji którą chcesz edytować "))
     try:
         cursor.execute('Select count(*) from Rezerwacja where id_rezerwacji = ?', (id_rezerwacji,))
@@ -136,7 +141,7 @@ def edit_reservation():
                     except Invalid_CzytelnikId_Exception:
                         print("Nie ma czytelnika o takim ID")
                 case 3:
-                    newData_Wypozyczenia = date(input("Podaj datę rezerwacji na którą chcesz zamienić "))
+                    newData_Wypozyczenia = input("Podaj datę rezerwacji na którą chcesz zamienić ")
                     try:
                         if not datetime.strptime(newData_Wypozyczenia, '%Y-%m-%d'):
                             raise InvalidDateFormat_Exception
@@ -147,6 +152,12 @@ def edit_reservation():
                             if newData_Wypozyczenia >= Data_Zwrotu:
                                 raise DataConflictException
                             else:
+                                cursor.execute('Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Rezerwacja WHERE id_rezerwacji = ?',(id_rezerwacji,))
+                                values = cursor.fetchone()
+                                cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                                                                          VALUES (?,?,?,?)''',
+                                               (values[0], values[1], "Przeniesienie rozpoczęcia rezerwacji",date.today()))
+
                                 cursor.execute(
                                     'UPDATE Rezerwacja SET Data_rozpoczecia = ? Where id_rezerwacji = ?',
                                     (newData_Wypozyczenia, id_rezerwacji,))
@@ -157,7 +168,7 @@ def edit_reservation():
                     except DataConflictException:
                         print("Data rozpoczecia nie może być wcześniejsza niż data zakonczenia")
                 case 4:
-                    newData_Zwrotu = date(input("Podaj datę zakonczenia rezerwacji na którą chcesz zamienić "))
+                    newData_Zwrotu = input("Podaj datę zakonczenia rezerwacji na którą chcesz zamienić ")
                     try:
                         if not datetime.strptime(newData_Zwrotu, '%Y-%m-%d'):
                             raise InvalidDateFormat_Exception
@@ -168,6 +179,13 @@ def edit_reservation():
                             if newData_Zwrotu <= Data_Wypozyczenia:
                                 raise DataConflictException
                             else:
+                                cursor.execute(
+                                    'Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Rezerwacja WHERE id_rezerwacji = ?',
+                                    (id_rezerwacji,))
+                                values = cursor.fetchone()
+                                cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                                                                                                          VALUES (?,?,?,?)''',
+                                               (values[0], values[1], "Przeniesienie zakończenia rezerwacji",date.today()))
                                 cursor.execute(
                                     'UPDATE Rezerwacja SET Data_rozpoczecia = ? Where id_rezerwacji = ?',
                                     (newData_Zwrotu, id_rezerwacji,))

@@ -5,8 +5,9 @@ import sqlite3
 import pandas as pd
 
 from colorama import Fore, Style
+from tabulate import tabulate
 
-from Exceptions import InvalidDateFormat_Exception
+from Exceptions import InvalidDateFormat_Exception, Invalid_KsiazkaId_Exception
 from Exceptions.No_Books_Exception import No_Books_Exception
 from Exceptions.Unknown_Operation_Exception import Unknown_Operation_Exception
 from Models import Ksiazka
@@ -14,45 +15,45 @@ from Models import Ksiazka
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
 
-def add_new_book():
-    tytul = input("Podaj tutuł książki ")
-    autor_imie = input("Podaj imie autora ")
-    autor_nazwisko = input("Podaj nazwisko autora ")
-    isbn = input("Podaj numer isbn ")
-    wydawnictwo = input("Podaj wydawnictwo ")
-    l_stron = input("Podaj liczbe stron ")
-    l_stron = int(l_stron)
-    status = input("Podaj status ")
-
-
-    while(True):
-        id_status = get_status_id(status)
-        if id_status == -1:
-            status = input("Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
-        else:
-            break
-
-
-
-
-    id_autora= None
-    cursor.execute('SELECT id_autora FROM Autor WHERE imie = ? AND Nazwisko = ?', (autor_imie,autor_nazwisko))
-    row = cursor.fetchone()
-
-    if row is None:
-        cursor.execute('INSERT INTO Autor (Imie,Nazwisko) VALUES (?,?)', (autor_imie,autor_nazwisko))
-        cursor.execute('SELECT id_autora FROM Autor WHERE imie = ? AND Nazwisko = ?', (autor_imie,autor_nazwisko))
-        row = cursor.fetchone()
-
-    id_autora = row[0]
-
-    cursor.execute('''
-                INSERT INTO Ksiazka (Tytul, Autor_id_autora, Numer_ISBN, Wydawnictwo, Liczba_stron, Status_id_statusu)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ''', (tytul, id_autora, isbn, wydawnictwo, l_stron, id_status))
-
-    conn.commit()
-    print("Książka została dodana do bazy")
+# def add_new_book():
+#     tytul = input("Podaj tutuł książki ")
+#     autor_imie = input("Podaj imie autora ")
+#     autor_nazwisko = input("Podaj nazwisko autora ")
+#     isbn = input("Podaj numer isbn ")
+#     wydawnictwo = input("Podaj wydawnictwo ")
+#     l_stron = input("Podaj liczbe stron ")
+#     l_stron = int(l_stron)
+#     status = input("Podaj status ")
+#
+#
+#     while(True):
+#         id_status = get_status_id(status)
+#         if id_status == -1:
+#             status = input("Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
+#         else:
+#             break
+#
+#
+#
+#
+#     id_autora= None
+#     cursor.execute('SELECT id_autora FROM Autor WHERE imie = ? AND Nazwisko = ?', (autor_imie,autor_nazwisko))
+#     row = cursor.fetchone()
+#
+#     if row is None:
+#         cursor.execute('INSERT INTO Autor (Imie,Nazwisko) VALUES (?,?)', (autor_imie,autor_nazwisko))
+#         cursor.execute('SELECT id_autora FROM Autor WHERE imie = ? AND Nazwisko = ?', (autor_imie,autor_nazwisko))
+#         row = cursor.fetchone()
+#
+#     id_autora = row[0]
+#
+#     cursor.execute('''
+#                 INSERT INTO Ksiazka (Tytul, Autor_id_autora, Numer_ISBN, Wydawnictwo, Liczba_stron, Status_id_statusu)
+#                 VALUES (?, ?, ?, ?, ?, ?)
+#                 ''', (tytul, id_autora, isbn, wydawnictwo, l_stron, id_status))
+#
+#     conn.commit()
+#     print("Książka została dodana do bazy")
 
 def get_status_id(nazwa_statusu:str):
     cursor.execute('SELECT * FROM Status WHERE Nazwa = ? ', (nazwa_statusu,))
@@ -183,3 +184,73 @@ def isBookReserved(id_ksiazki : int) -> bool:
         return False
     else:
         return True
+
+def add_new_book_prompt():
+    tytul = input("Podaj tutuł książki: ")
+    autor_imie = input("Podaj imie autora: ")
+    autor_nazwisko = input("Podaj nazwisko autora: ")
+    isbn = input("Podaj numer ISBN: ")
+    wydawnictwo = input("Podaj wydawnictwo: ")
+    l_stron = int(input("Podaj liczbe stron: "))
+    status = input("Podaj status: ")
+
+    add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status)
+
+def addDuplicateBook():
+    allBooks = get_all_books()
+    # print(allBooks)
+    print(tabulate(allBooks, headers='keys', tablefmt='fancy_grid'))
+    id_ksiazki = input("Podaj id książki, którą chcesz duplikować: ")
+    try:
+        if not isBookExists(id_ksiazki):
+            raise Invalid_KsiazkaId_Exception
+        else:
+            cursor.execute('''
+                SELECT k.Tytul, a.Imie, a.Nazwisko, k.Numer_ISBN, k.Wydawnictwo, k.Liczba_stron, s.Nazwa
+                FROM Ksiazka k
+                JOIN Autor a ON k.Autor_id_autora = a.id_autora
+                JOIN Status s ON k.Status_id_statusu = s.id_statusu
+                WHERE k.id_ksiazki = ?
+            ''', (id_ksiazki,))
+            row = cursor.fetchone()
+
+            if row:
+                tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status = row
+                add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status)
+                print("Dodano kopię książki:", tytul)
+            else:
+                print("Nie znaleziono książki o podanym ID.")
+
+    except Invalid_KsiazkaId_Exception:
+        print("Nie znaleziono książki o podanym ID.")
+
+
+def add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status):
+    while (True):
+        id_status = get_status_id(status)
+        if id_status == -1:
+            status = input("Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
+        else:
+            break
+
+
+
+
+    id_autora= None
+    cursor.execute('SELECT id_autora FROM Autor WHERE imie = ? AND Nazwisko = ?', (autor_imie,autor_nazwisko))
+    row = cursor.fetchone()
+
+    if row is None:
+        cursor.execute('INSERT INTO Autor (Imie,Nazwisko) VALUES (?,?)', (autor_imie,autor_nazwisko))
+        cursor.execute('SELECT id_autora FROM Autor WHERE imie = ? AND Nazwisko = ?', (autor_imie,autor_nazwisko))
+        row = cursor.fetchone()
+
+    id_autora = row[0]
+
+    cursor.execute('''
+                INSERT INTO Ksiazka (Tytul, Autor_id_autora, Numer_ISBN, Wydawnictwo, Liczba_stron, Status_id_statusu)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ''', (tytul, id_autora, isbn, wydawnictwo, l_stron, id_status))
+
+    conn.commit()
+    print("Książka została dodana do bazy")

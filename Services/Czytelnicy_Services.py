@@ -122,3 +122,11 @@ def isReaderExists(Id_czytelnik: int) -> bool:
     cursor.execute('SELECT count(*) FROM czytelnik where id_czytelnika = ?', (Id_czytelnik,))
     result = cursor.fetchone()[0]
     return result > 0
+
+
+
+def get_all_reader_history():
+    cursor.execute('Select * from Historia')
+    result = cursor.fetchall()
+    for row in result:
+        print(row)
