@@ -214,7 +214,6 @@ def isRentExists(id_rent:int)->bool:
     else:
         return True
 
-
 def return_book():
     id_czytelnika = int(input("Podaj id czytelnika, który chce zwrócić książkę "))
     try:
