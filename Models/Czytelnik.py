@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 
 
 @dataclass
@@ -11,3 +12,5 @@ class Czytelnik:
     Numer_Domu: int
     Ulica: str
     Miasto: str
+    Naleznosc: int = 0
+

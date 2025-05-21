@@ -20,18 +20,19 @@ print(tabulate(booksList, headers='keys', tablefmt='fancy_grid'))
 # delete_book()
 # edit_book()
 
-# add_new_reader()
-# readers = get_all_readers()
-# print(readers)
+#add_new_reader()
+readers = get_all_readers()
+
+print(tabulate(readers, headers='keys', tablefmt='fancy_grid'))
 
 # add_new_rent()
-# rents = get_all_rents()
-# print(rents)
+rents = get_all_rents()
+print(tabulate(rents, headers='keys', tablefmt='fancy_grid'))
 # delete_rent()
 
 
 #add_new_reservation()
-# print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
+print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
 
 
 # add_new_rent()

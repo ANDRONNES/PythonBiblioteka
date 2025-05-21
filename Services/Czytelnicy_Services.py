@@ -24,9 +24,9 @@ def add_new_reader():
             if not isAdresExists(Miasto, Ulica, Numer_Domu, Numer_Mieszkania):
                 raise Invalid_Adres_Exception
             else:
-                cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto)
+                cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto,Naleznosc)
                               VALUES (?,?,?,?,?,?,?)''',
-                               (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto))
+                               (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto,0))
                 conn.commit()
                 print("Czytelnik został dodany do bazy")
     except Invalid_Adres_Exception:
@@ -54,8 +54,8 @@ def get_all_readers():
     rows = cursor.fetchall()
 
     readers = []
-    for Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto in rows:
-        reader = Czytelnik(Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto)
+    for Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,naleznosc in rows:
+        reader = Czytelnik(Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,naleznosc)
         readers.append(reader)
 
     if len(rows) == 0:
@@ -117,16 +117,30 @@ def edit_reader():
     except Invalid_CzytelnikId_Exception:
         print("Nie istnieje czytelnika o podanym id")
 
-
 def isReaderExists(Id_czytelnik: int) -> bool:
     cursor.execute('SELECT count(*) FROM czytelnik where id_czytelnika = ?', (Id_czytelnik,))
     result = cursor.fetchone()[0]
     return result > 0
-
-
 
 def get_all_reader_history():
     cursor.execute('Select * from Historia')
     result = cursor.fetchall()
     for row in result:
         print(row)
+
+def get_reader_object_by_Id(Id_czytelnik: int):
+
+    cursor.execute('SELECT * FROM Czytelnik WHERE id_czytelnika = ?', (Id_czytelnik,))
+    row = cursor.fetchone()
+
+    czytelnik = None
+    if row:
+        czytelnik = Czytelnik(*row)
+        print(czytelnik)
+    else:
+        print("Czytelnik nie znaleziony.")
+
+        return czytelnik
+
+
+

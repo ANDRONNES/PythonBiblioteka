@@ -284,12 +284,35 @@ def return_book():
                         (date.today(), id_czytelnika, id_ksiazka))
                     conn.commit()
                     print("Ksiazka o Id: ", id_ksiazka, " została zwrócona ")
+
+
+                    # pobieram statrą datę zwrotu do obliczenia długu
+                    cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenia WHERE Czytelnik_id_czytelnika = ? AND Ksiazka_id_ksiazki = ?',
+                                   (id_czytelnika,id_ksiazka))
+                    old_data_zwrotu = cursor.fetchone()
+                    if old_data_zwrotu < date.today():
+                        roznica = date.today() - old_data_zwrotu
+                        roznica_days = roznica.days
+                        dlug = roznica_days * 0, 50
+                        print("Użytkownik o id ", id_czytelnika, " musi uregulować należność w wysokości ", dlug, " zł")
+                        cursor.execute('UPDATE Czytlenik SET Naleznosc = ? WHERE id_czytelnika = ? ',
+                                       (dlug * 100, id_czytelnika))
+
             else:
+
                 cursor.execute('''Select id_ksiazki From Ksiazka k 
                                   JOIN Wypozyczenie w On k.id_ksiazki = w.Ksiazka_id_ksiazki
                                   JOIN Czytelnik c ON c.id_czytelnika = w.Czytelnik_id_czytelnika
                                   Where w.Czytelnik_id_czytelnika = ?''',(id_czytelnika,))
                 id_ksiazki = cursor.fetchone()
+
+                #pobieram statrą datę zwrotu do obliczenia długu
+                cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenia WHERE Czytelnik_id_czytelnika = ?',
+                               (id_czytelnika,))
+                old_data_zwrotu = cursor.fetchone()
+
+
+
                 cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
                                                            VALUES (?,?,?,?)''',
                                (id_czytelnika, id_ksiazki[0], "Zwrot książki", date.today()))
@@ -302,6 +325,15 @@ def return_book():
                     (date.today(), id_czytelnika))
                 conn.commit()
                 print("Ksiazka została zwrócona ")
+
+                if old_data_zwrotu < date.today():
+                    roznica = date.today() - old_data_zwrotu
+                    roznica_days = roznica.days
+                    dlug = roznica_days * 0,50
+                    print("Użytkownik o id ",id_czytelnika, " musi uregulować należność w wysokości ",dlug, " zł")
+                    cursor.execute('UPDATE Czytlenik SET Naleznosc = ? WHERE id_czytelnika = ? ',(dlug*100,id_czytelnika))
+
+
     except Invalid_CzytelnikId_Exception:
         print("Nie ma czytelnika o takim ID")
     except Invalid_KsiazkaId_Exception:
