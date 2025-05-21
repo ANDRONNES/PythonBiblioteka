@@ -123,7 +123,9 @@ def isReaderExists(Id_czytelnik: int) -> bool:
     return result > 0
 
 def get_all_reader_history():
-    cursor.execute('Select * from Historia')
+    cursor.execute('''Select c.Imie || ' ' || c.Nazwisko as Czytelnik,k.Tytul,h.opis_operacji,h.data
+                      from Historia h Join Czytelnik c ON h.Czytelnik_id_czytelnika = c.id_czytelnika
+                      Join Ksiazka k ON k.id_ksiazki = h.Ksiazka_id_ksiazki''')
     result = cursor.fetchall()
     for row in result:
         print(row)
