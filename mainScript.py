@@ -47,7 +47,7 @@ while(True):
                 case 5:
                     continue
                 case _:
-                    print(Fore.RED +"\nWybrano niepoprawną operację!\n"+ Style.RESET_ALL)
+                    print(Fore.RED +"\nWybrano niepoprawną operację!git a\n"+ Style.RESET_ALL)
                     continue
 
         case 2:
