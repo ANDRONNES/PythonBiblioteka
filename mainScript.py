@@ -1,23 +1,21 @@
 from unittest import case
-
 import colorama
-
 from colorama import Fore, Style
-
-from Services.Czytelnicy_Services import add_new_reader, get_all_readers, get_all_reader_history, delete_reader
-from Services.Ksiazki_Services import add_new_book, get_all_books, delete_book, edit_book, add_new_book_prompt, \
-    addDuplicateBook
-
-
 from tabulate import tabulate
+from Services import *
 
-from Services.Reservation_service import add_new_reservation, get_all_reservations, edit_reservation
-from Services.Wypozyczenia_Services import add_new_rent, get_all_rents, delete_rent, przedluzenie_wypozyczenia
 
-from Services.Czytelnicy_Services import add_new_reader, get_all_readers, edit_reader
-from Services.Ksiazki_Services import add_new_book, get_all_books, delete_book
-from Services.Wypozyczenia_Services import add_new_rent, get_all_rents, delete_rent, edit_rent, return_book
+# Wojtek, jeszcze zostały metody:
+# Czetelnicy:
+# get_all_reader_history(CztelnikId : int)
+# get_reader_object_by_Id
 
+# Rezerwacje:
+# get_all_reservations
+
+# Wypożyczenia
+# get_all_rents
+# przedluzenie_wypozyczenia
 print("Witaj w systemie bibliotecznym")
 
 while(True):
@@ -116,11 +114,11 @@ while(True):
 4. Wróć\n'''))
             match rezerwacja_decision:
                 case 1:
-                    add_new_rent()
+                    add_new_reservation()
                 case 2:
-                    delete_rent()
+                    delete_reservation()
                 case 3:
-                    edit_rent()
+                    edit_reservation()
                 case 4:
                     continue
                 case _:

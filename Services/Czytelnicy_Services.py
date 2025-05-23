@@ -122,13 +122,23 @@ def isReaderExists(Id_czytelnik: int) -> bool:
     result = cursor.fetchone()[0]
     return result > 0
 
-def get_all_reader_history():
-    cursor.execute('''Select c.Imie || ' ' || c.Nazwisko as Czytelnik,k.Tytul,h.opis_operacji,h.data
-                      from Historia h Join Czytelnik c ON h.Czytelnik_id_czytelnika = c.id_czytelnika
-                      Join Ksiazka k ON k.id_ksiazki = h.Ksiazka_id_ksiazki''')
-    result = cursor.fetchall()
-    for row in result:
-        print(row)
+def get_all_reader_history(Id_czytelnik: int) :
+    try:
+        if not isReaderExists(Id_czytelnik):
+            raise Invalid_CzytelnikId_Exception
+        else:
+            cursor.execute('''Select c.Imie || ' ' || c.Nazwisko as Czytelnik,k.Tytul,h.opis_operacji,h.data
+                              from Historia h Join Czytelnik c ON h.Czytelnik_id_czytelnika = c.id_czytelnika
+                              Join Ksiazka k ON k.id_ksiazki = h.Ksiazka_id_ksiazki
+                              Where c.id_czytelnika = ?''',(Id_czytelnik,))
+            result = cursor.fetchall()
+            if len(result) == 0:
+                print("Brak historii czytelnika")
+            else:
+                for row in result:
+                    print(row)
+    except Invalid_CzytelnikId_Exception:
+        print("Nie istnieje czytelnika o podanym id")
 
 def get_reader_object_by_Id(Id_czytelnik: int):
 
