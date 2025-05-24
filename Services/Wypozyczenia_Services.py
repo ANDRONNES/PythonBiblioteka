@@ -207,7 +207,8 @@ def edit_rent():
         print("Nieprawidłowy format daty")
 
 
-def przedluzenie_wypozyczenia(id_wypozyczenia: int):
+def przedluzenie_wypozyczenia():
+    id_wypozyczenia = int(input("Podaj id wypożyczenia które chcesz przedłużyć"))
     try:
         if not isRentExists(id_wypozyczenia):
             raise RentDoesNotExists_Exception

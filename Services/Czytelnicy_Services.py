@@ -2,6 +2,7 @@ import sqlite3
 from Exceptions import *
 import re
 from Models import Czytelnik
+from Models.Historia import Historia
 from Services.Adresy_Services import isAdresExists
 
 conn = sqlite3.connect('Data Base/biblioteka.db')
@@ -21,16 +22,11 @@ def add_new_reader():
         if not re.fullmatch(pattern, Numer_Telefonu):
             raise Invalid_NumerTelefonu_Exception
         else:
-            if not isAdresExists(Miasto, Ulica, Numer_Domu, Numer_Mieszkania):
-                raise Invalid_Adres_Exception
-            else:
-                cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto,Naleznosc)
-                              VALUES (?,?,?,?,?,?,?)''',
-                               (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto,0))
-                conn.commit()
-                print("Czytelnik został dodany do bazy")
-    except Invalid_Adres_Exception:
-        print("Nie istinieje takiego adresu w bazie danych")
+            cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto,Naleznosc)
+                            VALUES (?,?,?,?,?,?,?)''',
+                            (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto,0))
+            conn.commit()
+            print("Czytelnik został dodany do bazy")
     except Invalid_NumerTelefonu_Exception:
         print("Numer telefonu może składać się tylko z cyfr")
 
@@ -104,16 +100,12 @@ def edit_reader():
                     Numer_Domu = int(input("Podaj nowy numer domu czytelnika "))
                     Ulica = input("Podaj nową ulicę czytelnika ")
                     Miasto = input("Podaj nowe miasto czytelnika ")
-                    try:
-                        if not isAdresExists(Miasto, Ulica, Numer_Domu, Numer_Mieszkania):
-                            raise Invalid_Adres_Exception
-                        else:
-                            cursor.execute(
-                                'Update Czytelnik SET Adres_Numer_Mieszkania = ?,Adres_Numer_Domu = ?,Adres_Ulica = ?,Adres_Miasto = ?',
-                                (Numer_Mieszkania, Numer_Domu, Ulica, Miasto))
-                            conn.commit()
-                    except Invalid_Adres_Exception:
-                        print("Nie istinieje takiego adresu w bazie danych")
+
+                    cursor.execute(
+                        'Update Czytelnik SET Adres_Numer_Mieszkania = ?,Adres_Numer_Domu = ?,Adres_Ulica = ?,Adres_Miasto = ?',
+                        (Numer_Mieszkania, Numer_Domu, Ulica, Miasto))
+                    conn.commit()
+
     except Invalid_CzytelnikId_Exception:
         print("Nie istnieje czytelnika o podanym id")
 
@@ -122,23 +114,30 @@ def isReaderExists(Id_czytelnik: int) -> bool:
     result = cursor.fetchone()[0]
     return result > 0
 
-def get_all_reader_history(Id_czytelnik: int) :
+def get_all_reader_history() :
+    Id_czytelnik = int(input("Podaj id czytelnika którego historię chcesz wyświetlić "))
+
+    hisotryList = []
     try:
         if not isReaderExists(Id_czytelnik):
             raise Invalid_CzytelnikId_Exception
         else:
-            cursor.execute('''Select c.Imie || ' ' || c.Nazwisko as Czytelnik,k.Tytul,h.opis_operacji,h.data
+            cursor.execute('''Select Imie, Nazwisko as Czytelnik,k.Tytul,h.opis_operacji,h.data
                               from Historia h Join Czytelnik c ON h.Czytelnik_id_czytelnika = c.id_czytelnika
                               Join Ksiazka k ON k.id_ksiazki = h.Ksiazka_id_ksiazki
                               Where c.id_czytelnika = ?''',(Id_czytelnik,))
             result = cursor.fetchall()
+            for id_historia, Id_czytelnika, IdKsiazki, Opis_operacji,data in result:
+                hisotria = Historia(id_historia,Id_czytelnika,IdKsiazki, Opis_operacji, data)
+                hisotryList.append(hisotria)
+
             if len(result) == 0:
                 print("Brak historii czytelnika")
             else:
-                for row in result:
-                    print(row)
+                return hisotryList
     except Invalid_CzytelnikId_Exception:
         print("Nie istnieje czytelnika o podanym id")
+
 
 def get_reader_object_by_Id(Id_czytelnik: int):
 

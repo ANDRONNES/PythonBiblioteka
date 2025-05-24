@@ -10,12 +10,8 @@ from Services import *
 # get_all_reader_history(CztelnikId : int)
 # get_reader_object_by_Id
 
-# Rezerwacje:
-# get_all_reservations
 
-# Wypożyczenia
-# get_all_rents
-# przedluzenie_wypozyczenia
+
 print("Witaj w systemie bibliotecznym")
 
 while(True):
@@ -28,11 +24,13 @@ while(True):
 
     match decision:
         case 1:
-            czytlenik_decision = int(input('''1. Dodaj czytelnika
+            czytlenik_decision = int(input('''
+1. Dodaj czytelnika
 2. Usuń czytelnika
 3. Edytuj dane czytelnika
 4. Wyświetl dane wszystkich czytelników
-5. Wróć\n'''))
+5. Wyświetl historię danego czytelnika
+6. Wróć\n'''))
             match czytlenik_decision:
                 case 1:
                     add_new_reader()
@@ -43,6 +41,9 @@ while(True):
                 case 4:
                     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
                 case 5:
+                    headers = ["Imię", "Nazwisko", "Tytuł Książki","Operacja","Data Operacji"]
+                    print(tabulate(get_all_reader_history(), headers=headers, tablefmt='fancy_grid'))
+                case 6:
                     continue
                 case _:
                     print(Fore.RED +"\nWybrano niepoprawną operację!git a\n"+ Style.RESET_ALL)
@@ -90,7 +91,9 @@ while(True):
 2. Usuń wypozyczenie
 3. Edytuj wypozyczenie
 4. Zwróć książkę
-5. Wróć\n'''))
+5. Wyświetl wszystkie wypożyczenia
+6. Przedłuż wypożyczenie
+7. Wróć\n'''))
             match wypozyczenie_decision:
                 case 1:
                     add_new_rent()
@@ -101,6 +104,10 @@ while(True):
                 case 4:
                     return_book()
                 case 5:
+                    print(tabulate(get_all_rents(), headers='keys', tablefmt='fancy_grid'))
+                case 6:
+                    przedluzenie_wypozyczenia()
+                case 7:
                     continue
                 case _:
                     print(Fore.RED +"\nWybrano niepoprawną operację!\n"+ Style.RESET_ALL)
@@ -111,7 +118,8 @@ while(True):
 1. Utwórz rezerwację
 2. Usuń rezerwację
 3. Edytuj rezerwację
-4. Wróć\n'''))
+4. Wyświetl wszystkie rezerwacje
+5. Wróć\n'''))
             match rezerwacja_decision:
                 case 1:
                     add_new_reservation()
@@ -120,6 +128,8 @@ while(True):
                 case 3:
                     edit_reservation()
                 case 4:
+                    print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
+                case 5:
                     continue
                 case _:
                     print(Fore.RED + "\nWybrano niepoprawną operację!\n"+ Style.RESET_ALL)
@@ -129,23 +139,6 @@ while(True):
         case _:
             print(Fore.RED +"\nNie rozpoznano operacji!\n"+ Style.RESET_ALL)
             continue
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # add_new_book()
 # booksList = get_all_books()
