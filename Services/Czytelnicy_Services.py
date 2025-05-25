@@ -1,9 +1,8 @@
 import sqlite3
+from tabulate import tabulate
 from Exceptions import *
 import re
-from Models import Czytelnik
-from Models.Historia import Historia
-from Services.Adresy_Services import isAdresExists
+from Models import Czytelnik, Historia
 
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
@@ -23,8 +22,8 @@ def add_new_reader():
             raise Invalid_NumerTelefonu_Exception
         else:
             cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto,Naleznosc)
-                            VALUES (?,?,?,?,?,?,?)''',
-                            (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto,0))
+                            VALUES (?,?,?,?,?,?,?,?)''',
+                           (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto, 0))
             conn.commit()
             print("Czytelnik został dodany do bazy")
     except Invalid_NumerTelefonu_Exception:
@@ -32,6 +31,7 @@ def add_new_reader():
 
 
 def delete_reader():
+    print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
     idCzytelnika = int(input("podaj id czytelnika którego chcesz usunąć "))
     cursor.execute('DELETE FROM Czytelnik WHERE id_czytelnika = ?', (idCzytelnika,))
 
@@ -50,8 +50,9 @@ def get_all_readers():
     rows = cursor.fetchall()
 
     readers = []
-    for Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,naleznosc in rows:
-        reader = Czytelnik(Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,naleznosc)
+    for Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto, naleznosc in rows:
+        reader = Czytelnik(Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,
+                           naleznosc)
         readers.append(reader)
 
     if len(rows) == 0:
@@ -61,17 +62,17 @@ def get_all_readers():
 
 
 def edit_reader():
-    print(get_all_readers())
+    print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
     id_czytelnika = int(input("Podaj id czytelnika którego chcesz edytować "))
     try:
         if not isReaderExists(id_czytelnika):
             raise Invalid_CzytelnikId_Exception
         else:
-            whatToEdit = int(input('''Podaj który parametr wypozyczenia chcesz edytować :
-                                        Imie - wpisz 1
-                                        Nazwisko - wpisz 2
-                                        Numer_Telefonu - wpisz 3
-                                        Adres - wpisz 4 '''))
+            whatToEdit = int(input('''Wybierz parametr który chcesz edytować: 
+1. Imie
+2. Nazwisko 
+3. Numer_Telefonu
+4. Adres\n'''))
             match whatToEdit:
                 case 1:
                     newImie = input("Podaj nowe Imie ")
@@ -102,20 +103,24 @@ def edit_reader():
                     Miasto = input("Podaj nowe miasto czytelnika ")
 
                     cursor.execute(
-                        'Update Czytelnik SET Adres_Numer_Mieszkania = ?,Adres_Numer_Domu = ?,Adres_Ulica = ?,Adres_Miasto = ?',
-                        (Numer_Mieszkania, Numer_Domu, Ulica, Miasto))
+                        'Update Czytelnik SET Adres_Numer_Mieszkania = ?,Adres_Numer_Domu = ?,Adres_Ulica = ?,Adres_Miasto = ? where id_czytelnika = ?',
+                        (Numer_Mieszkania, Numer_Domu, Ulica, Miasto, id_czytelnika,))
                     conn.commit()
 
     except Invalid_CzytelnikId_Exception:
         print("Nie istnieje czytelnika o podanym id")
+
 
 def isReaderExists(Id_czytelnik: int) -> bool:
     cursor.execute('SELECT count(*) FROM czytelnik where id_czytelnika = ?', (Id_czytelnik,))
     result = cursor.fetchone()[0]
     return result > 0
 
-def get_all_reader_history() :
+
+def get_all_reader_history():
+    print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
     Id_czytelnik = int(input("Podaj id czytelnika którego historię chcesz wyświetlić "))
+    # exception? jeśli podac literę to wypierdoli cały program
 
     hisotryList = []
     try:
@@ -125,10 +130,10 @@ def get_all_reader_history() :
             cursor.execute('''Select Imie, Nazwisko as Czytelnik,k.Tytul,h.opis_operacji,h.data
                               from Historia h Join Czytelnik c ON h.Czytelnik_id_czytelnika = c.id_czytelnika
                               Join Ksiazka k ON k.id_ksiazki = h.Ksiazka_id_ksiazki
-                              Where c.id_czytelnika = ?''',(Id_czytelnik,))
+                              Where c.id_czytelnika = ?''', (Id_czytelnik,))
             result = cursor.fetchall()
-            for id_historia, Id_czytelnika, IdKsiazki, Opis_operacji,data in result:
-                hisotria = Historia(id_historia,Id_czytelnika,IdKsiazki, Opis_operacji, data)
+            for id_historia, Id_czytelnika, IdKsiazki, Opis_operacji, data in result:
+                hisotria = Historia(id_historia, Id_czytelnika, IdKsiazki, Opis_operacji, data)
                 hisotryList.append(hisotria)
 
             if len(result) == 0:
@@ -140,7 +145,6 @@ def get_all_reader_history() :
 
 
 def get_reader_object_by_Id(Id_czytelnik: int):
-
     cursor.execute('SELECT * FROM Czytelnik WHERE id_czytelnika = ?', (Id_czytelnik,))
     row = cursor.fetchone()
 
@@ -152,6 +156,3 @@ def get_reader_object_by_Id(Id_czytelnik: int):
         print("Czytelnik nie znaleziony.")
 
         return czytelnik
-
-
-
