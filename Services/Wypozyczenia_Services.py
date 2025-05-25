@@ -41,15 +41,16 @@ def add_new_rent():
                     if cursor.fetchone()[0] != 1:
                         raise Ksiazka_NieJestDostepna_Exception
                     else:
-                        cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                  VALUES (?,?,?,?)''',
-                                       (Id_czytelnik, Id_ksiazka, "Wypożyczenie", Data_Wypozyczenia))
+                        cursor.execute('''
+                        INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                        VALUES (?,?,?,?)''',(Id_czytelnik, Id_ksiazka, "Wypożyczenie", Data_Wypozyczenia))
 
-                        cursor.execute('''INSERT INTO Wypozyczenie(Ksiazka_id_ksiazki,Czytelnik_id_czytelnika,Data_Wypozyczenia,Data_Zwrotu)
-                                          VALUES(?,?,?,?) ''',
-                                       (Id_ksiazka, Id_czytelnik, Data_Wypozyczenia, Data_Zwrotu))
-                        cursor.execute('''UPDATE Ksiazka SET Status_id_statusu = 2 Where id_ksiazki = ?''',
-                                       (Id_ksiazka,))
+                        cursor.execute('''
+                        INSERT INTO Wypozyczenie(Ksiazka_id_ksiazki,Czytelnik_id_czytelnika,Data_Wypozyczenia,Data_Zwrotu)
+                        VALUES(?,?,?,?) ''',(Id_ksiazka, Id_czytelnik, Data_Wypozyczenia, Data_Zwrotu))
+
+                        cursor.execute('''UPDATE Ksiazka SET Status_id_statusu = 2 Where id_ksiazki = ?''',(Id_ksiazka,))
+
                         conn.commit()
                         print("Wypożyczenie zostało dodane do bazy")
     except Invalid_CzytelnikId_Exception:
@@ -121,24 +122,22 @@ def edit_rent():
                         if not isBookExists(newBook_id):
                             raise Invalid_KsiazkaId_Exception
                         else:
-                            cursor.execute('SELECT Ksiazka_id_ksiazki FROM Wypozyczenie Where id_wypozyczenia = ? ',
-                                           (id_wypozyczenia,))
+                            cursor.execute('SELECT Ksiazka_id_ksiazki FROM Wypozyczenie Where id_wypozyczenia = ? ',(id_wypozyczenia,))
                             oldBook = cursor.fetchone()[0]
+
                             cursor.execute('Update Ksiazka set Status_id_statusu = 1 where id_ksiazki = ?', (oldBook,))
-                            cursor.execute('Select Czytelnik_id_czytelnika from Wypozyczenie Where id_wypozyczenia = ?',
-                                           (id_wypozyczenia,))
+
+                            cursor.execute('Select Czytelnik_id_czytelnika from Wypozyczenie Where id_wypozyczenia = ?',(id_wypozyczenia,))
                             czytelnik = cursor.fetchone()[0]
-                            cursor.execute('''Insert INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                            Values(?,?,?,?)''',
-                                           (czytelnik, newBook_id, "Wymiana wypożyczonej książki", date.today()))
+
+                            cursor.execute('''
+                            Insert INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                            Values(?,?,?,?)''',(czytelnik, newBook_id, "Wymiana wypożyczonej książki", date.today()))
 
                             cursor.execute('Select Status_id_statusu From Ksiazka Where id_ksiazki = ?', (newBook_id,))
                             if cursor.fetchone()[0] == 1:
-                                cursor.execute(
-                                    'UPDATE Wypozyczenie SET Ksiazka_id_ksiazki = ? Where id_wypozyczenia = ?',
-                                    (newBook_id, id_wypozyczenia,))
-                                cursor.execute('Update Ksiazka set Status_id_statusu = 2 where id_ksiazki = ?',
-                                               (newBook_id,))
+                                cursor.execute('UPDATE Wypozyczenie SET Ksiazka_id_ksiazki = ? Where id_wypozyczenia = ?',(newBook_id, id_wypozyczenia,))
+                                cursor.execute('Update Ksiazka set Status_id_statusu = 2 where id_ksiazki = ?',(newBook_id,))
                             else:
                                 raise BookNotAvaliable_Exception
                             conn.commit()
@@ -151,24 +150,21 @@ def edit_rent():
                     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
                     try:
                         newCzytelnik_id = int(input("Podaj id czytelnika na którego chesz zamienić "))
-                        cursor.execute('Select Czytelnik_id_czytelnika From wypozyczenie where id_wypozyczenia = ?',
-                                       (id_wypozyczenia,))
+                        cursor.execute('Select Czytelnik_id_czytelnika From wypozyczenie where id_wypozyczenia = ?',(id_wypozyczenia,))
                         if (newCzytelnik_id == cursor.fetchone()[0]):
                             raise DataConflictException
                         else:
                             if not isReaderExists(newCzytelnik_id):
                                 raise Invalid_CzytelnikId_Exception
                             else:
-                                cursor.execute(
-                                    'UPDATE Wypozyczenie SET Czytelnik_id_czytelnika = ? Where id_wypozyczenia = ?',
-                                    (newCzytelnik_id, id_wypozyczenia,))
-                                cursor.execute('Select Ksiazka_id_ksiazki from wypozyczenie Where id_wypozyczenia = ?',
-                                               (id_wypozyczenia,))
+                                cursor.execute('UPDATE Wypozyczenie SET Czytelnik_id_czytelnika = ? Where id_wypozyczenia = ?',(newCzytelnik_id, id_wypozyczenia,))
+
+                                cursor.execute('Select Ksiazka_id_ksiazki from wypozyczenie Where id_wypozyczenia = ?',(id_wypozyczenia,))
                                 bookId = cursor.fetchone()[0]
-                                cursor.execute('''Insert INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                                                            Values(?,?,?,?)''',
-                                               (newCzytelnik_id, bookId,
-                                                "Wypożyczenie (zmiana czytelnika w wypożyczeniu)", date.today()))
+
+                                cursor.execute('''
+                                Insert INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                                Values(?,?,?,?)''',(newCzytelnik_id, bookId,"Wypożyczenie (zmiana czytelnika w wypożyczeniu)", date.today()))
                                 conn.commit()
                                 print("Czytelnik został zmieniony")
                     except DataConflictException:
@@ -180,23 +176,19 @@ def edit_rent():
                     try:
                         Data_Wypozyczenia = datetime.strptime(newData_Wypozyczenia, "%Y-%m-%d").date()
 
-                        cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE id_wypozyczenia = ?',
-                                       (id_wypozyczenia,))
+                        cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
                         Data_Zwrotu = datetime.strptime(cursor.fetchone()[0], "%Y-%m-%d").date()
                         if Data_Wypozyczenia >= Data_Zwrotu:
                             raise DataConflictException
                         else:
                             cursor.execute(
-                                'Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Wypozyczenie WHERE id_wypozyczenia = ?',
-                                (id_wypozyczenia,))
+                                'Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
                             values = cursor.fetchone()
-                            cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                                                                                      VALUES (?,?,?,?)''',
-                                           (values[0], values[1],
-                                            "Przeniesienie rozpoczęcia wypozyczenia", date.today()))
-                            cursor.execute(
-                                'UPDATE Wypozyczenie SET Data_Wypozyczenia = ? Where id_wypozyczenia = ?',
-                                (Data_Wypozyczenia, id_wypozyczenia,))
+                            cursor.execute('''
+                            INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                            VALUES (?,?,?,?)''',(values[0], values[1],"Przeniesienie rozpoczęcia wypozyczenia", date.today()))
+
+                            cursor.execute('UPDATE Wypozyczenie SET Data_Wypozyczenia = ? Where id_wypozyczenia = ?',(Data_Wypozyczenia, id_wypozyczenia,))
                             conn.commit()
                             print("Data wypozyczenia została zmieniona ")
                     except ValueError:
@@ -209,25 +201,21 @@ def edit_rent():
                     newData_Zwrotu = input("Podaj datę zwrotu na którą chcesz zamienić ")
                     try:
                         Data_Zwrotu = datetime.strptime(newData_Zwrotu, "%Y-%m-%d").date()
-                        cursor.execute('SELECT Data_Wypozyczenia FROM Wypozyczenie WHERE id_wypozyczenia = ?',
-                                       (id_wypozyczenia,))
+                        cursor.execute('SELECT Data_Wypozyczenia FROM Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
                         Data_Wypozyczenia = datetime.strptime(cursor.fetchone()[0], "%Y-%m-%d").date()
                         if Data_Zwrotu <= Data_Wypozyczenia:
                             raise DataConflictException
                         else:
                             cursor.execute(
-                                'Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Wypozyczenie WHERE id_wypozyczenia = ?',
-                                (id_wypozyczenia,))
+                                'Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
                             values = cursor.fetchone()
-                            cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                                  VALUES (?,?,?,?)''', (
-                                values[0], values[1], "Przeniesienie zakończenia wypozyczenia", date.today()))
+                            cursor.execute('''
+                            INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                            VALUES (?,?,?,?)''', (values[0], values[1], "Przeniesienie zakończenia wypozyczenia", date.today()))
 
                             # jak i rezerwacja, czy nie jest to przedłużenie???
 
-                            cursor.execute(
-                                'UPDATE Wypozyczenie SET Data_Wypozyczenia = ? Where id_wypozyczenia = ?',
-                                (Data_Zwrotu, id_wypozyczenia,))
+                            cursor.execute('UPDATE Wypozyczenie SET Data_Wypozyczenia = ? Where id_wypozyczenia = ?',(Data_Zwrotu, id_wypozyczenia,))
                             conn.commit()
                             print("Data zwrotu została zmieniona ")
                     except ValueError:
@@ -255,24 +243,20 @@ def przedluzenie_wypozyczenia():
     except ValueError:
         print("podano datę w złym formacie")
 
-    cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE id_wypozyczenia = ?',
-                   (id_wypozyczenia,))
+    cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
     Data_Zwrotu = datetime.strptime(cursor.fetchone()[0], "%Y-%m-%d").date()
 
     try:
         if new_Data_Zwrotu <= Data_Zwrotu:
             raise DataConflictException
 
-        cursor.execute(
-            'Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Wypozyczenie WHERE id_wypozyczenia = ?',
-            (id_wypozyczenia,))
+        cursor.execute('Select Czytelnik_id_czytelnika,Ksiazka_id_ksiazki from Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
         values = cursor.fetchone()
-        cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                                                                                              VALUES (?,?,?,?)''',
-                       (values[0], values[1], "Przedłużenie wypozyczenia", date.today()))
+        cursor.execute('''
+        INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+        VALUES (?,?,?,?)''',(values[0], values[1], "Przedłużenie wypozyczenia", date.today()))
 
-        cursor.execute('UPDATE Wypozyczenie SET Data_Zwrotu = ? WHERE id_wypozyczenia = ?  ',
-                       (new_Data_Zwrotu, id_wypozyczenia))
+        cursor.execute('UPDATE Wypozyczenie SET Data_Zwrotu = ? WHERE id_wypozyczenia = ?  ',(new_Data_Zwrotu, id_wypozyczenia))
         conn.commit()
         print("Data zwrotu została zmieniona na ", new_Data_Zwrotu)
 
@@ -327,20 +311,17 @@ def return_book():
                     raise Invalid_KsiazkaId_Exception
                 else:
 
-                    cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                           VALUES (?,?,?,?)''',
-                                   (id_czytelnika, id_ksiazka, "Zwrot książki", date.today()))
+                    cursor.execute('''
+                    INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                    VALUES (?,?,?,?)''',(id_czytelnika, id_ksiazka, "Zwrot książki", date.today()))
 
                     cursor.execute('Update Ksiazka set Status_id_statusu = 1 Where id_ksiazki = ?', (id_ksiazka,))
-                    cursor.execute(
-                        'Delete from Wypozyczenie where Where Czytelnik_id_czytelnika = ? And Ksiazka_id_ksiazki = ?',
-                        (id_czytelnika, id_ksiazka))
+
+                    cursor.execute('Delete from Wypozyczenie where Where Czytelnik_id_czytelnika = ? And Ksiazka_id_ksiazki = ?',(id_czytelnika, id_ksiazka))
                     print("Ksiazka o Id: ", id_ksiazka, " została zwrócona ")
 
                     # pobieram statrą datę zwrotu do obliczenia długu
-                    cursor.execute(
-                        'SELECT Data_Zwrotu FROM Wypozyczenie WHERE Czytelnik_id_czytelnika = ? AND Ksiazka_id_ksiazki = ?',
-                        (id_czytelnika, id_ksiazka))
+                    cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE Czytelnik_id_czytelnika = ? AND Ksiazka_id_ksiazki = ?',(id_czytelnika, id_ksiazka))
                     old_data_zwrotu = cursor.fetchone()
                     if old_data_zwrotu < date.today():
                         roznica = date.today() - old_data_zwrotu
@@ -354,26 +335,24 @@ def return_book():
             else:
 
                 cursor.execute('''Select id_ksiazki From Ksiazka k 
-                                  JOIN Wypozyczenie w On k.id_ksiazki = w.Ksiazka_id_ksiazki
-                                  JOIN Czytelnik c ON c.id_czytelnika = w.Czytelnik_id_czytelnika
-                                  Where w.Czytelnik_id_czytelnika = ?''', (id_czytelnika,))
+                                       JOIN Wypozyczenie w On k.id_ksiazki = w.Ksiazka_id_ksiazki
+                                       JOIN Czytelnik c ON c.id_czytelnika = w.Czytelnik_id_czytelnika
+                                       Where w.Czytelnik_id_czytelnika = ?''', (id_czytelnika,))
                 id_ksiazki = cursor.fetchone()
 
                 # pobieram statrą datę zwrotu do obliczenia długu
-                cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE Czytelnik_id_czytelnika = ?',
-                               (id_czytelnika,))
+                cursor.execute('SELECT Data_Zwrotu FROM Wypozyczenie WHERE Czytelnik_id_czytelnika = ?',(id_czytelnika,))
                 old_data_zwrotu = datetime.strptime(cursor.fetchone()[0], "%Y-%m-%d").date()
 
-                cursor.execute('''INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
-                                                           VALUES (?,?,?,?)''',
-                               (id_czytelnika, id_ksiazki[0], "Zwrot książki", date.today()))
+                cursor.execute('''
+                INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
+                VALUES (?,?,?,?)''',(id_czytelnika, id_ksiazki[0], "Zwrot książki", date.today()))
 
                 cursor.execute('''Update Ksiazka set Status_id_statusu = 1 
                                        Where id_ksiazki = (Select Ksiazka_id_ksiazki 
                                        From Wypozyczenie Where Czytelnik_id_czytelnika = ?)''', (id_czytelnika,))
-                cursor.execute(
-                    'Delete from Wypozyczenie Where Czytelnik_id_czytelnika = ? ',
-                    (id_czytelnika,))
+
+                cursor.execute('Delete from Wypozyczenie Where Czytelnik_id_czytelnika = ? ',(id_czytelnika,))
 
                 print("Ksiazka została zwrócona ")
 
@@ -382,8 +361,7 @@ def return_book():
                     roznica_days = roznica.days
                     dlug = roznica_days * 0.50
                     print("Użytkownik o id ", id_czytelnika, " musi uregulować należność w wysokości ", dlug, " zł")
-                    cursor.execute('UPDATE Czytelnik SET Naleznosc = ? WHERE id_czytelnika = ? ',
-                                   (dlug * 100, id_czytelnika))
+                    cursor.execute('UPDATE Czytelnik SET Naleznosc = ? WHERE id_czytelnika = ? ',(dlug * 100, id_czytelnika))
                 conn.commit()
 
 

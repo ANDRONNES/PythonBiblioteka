@@ -43,8 +43,7 @@ def koloruj_status(status):
 
 def get_all_books():
     cursor.execute('''
-        SELECT id_ksiazki, Tytul, Autor.Imie, Autor.Nazwisko,
-               Numer_ISBN, Wydawnictwo, Status.Nazwa, Liczba_stron
+        SELECT id_ksiazki, Tytul, Autor.Imie, Autor.Nazwisko,Numer_ISBN, Wydawnictwo, Status.Nazwa, Liczba_stron
         FROM Ksiazka
         JOIN Status ON Ksiazka.Status_id_statusu = Status.id_statusu
         JOIN Autor ON Ksiazka.Autor_id_autora = Autor.id_autora
@@ -123,8 +122,7 @@ def edit_book():
                             else:
                                 break
 
-                        cursor.execute('UPDATE Ksiazka SET Status_id_statusu = ? WHERE id_ksiazki =?',
-                                       (id_status, id_ksiazki))
+                        cursor.execute('UPDATE Ksiazka SET Status_id_statusu = ? WHERE id_ksiazki =?',(id_status, id_ksiazki))
                         conn.commit()
                         print("Status ksiązki został zmieniony")
                     case _:

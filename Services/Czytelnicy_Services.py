@@ -51,8 +51,7 @@ def get_all_readers():
 
     readers = []
     for Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto, naleznosc in rows:
-        reader = Czytelnik(Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,
-                           naleznosc)
+        reader = Czytelnik(Id_czytelnik, imie, nazwisko, numer_telefonu, numer_mieszkania, numer_domu, ulica, miasto,naleznosc)
         readers.append(reader)
 
     if len(rows) == 0:
