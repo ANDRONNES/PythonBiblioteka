@@ -4,25 +4,26 @@ from colorama import Fore, Style
 from tabulate import tabulate
 from Services import *
 
+
 print("Witaj w systemie bibliotecznym")
 
 while (True):
-    decision = int(input('''Wybierz akcję którą chcesz wykonać: 
+    decision = validated_input('''Wybierz akcję którą chcesz wykonać: 
 1. Akcje związane z czytelnikiem
 2. Akcje związane z książką
 3. Wypożyczenia 
 4. Rezerwacje 
-5. Wyjdź\n'''))
+5. Wyjdź\n''')
 
     match decision:
         case 1:
-            czytlenik_decision = int(input('''
+            czytlenik_decision = validated_input('''
 1. Dodaj czytelnika
 2. Usuń czytelnika
 3. Edytuj dane czytelnika
 4. Wyświetl dane wszystkich czytelników
 5. Wyświetl historię danego czytelnika
-6. Wróć\n'''))
+6. Wróć\n''')
             match czytlenik_decision:
                 case 1:
                     add_new_reader()
@@ -45,18 +46,18 @@ while (True):
                     continue
 
         case 2:
-            ksiazka_decision = int(input('''Wybierz akcję którą chcesz wykonać: 
+            ksiazka_decision = validated_input('''Wybierz akcję którą chcesz wykonać: 
 1. Dodaj książkę
 2. Usuń książkę
 3. Edytuj dane książki
 4. Wyświetl dane wszytskich książek
-5. Wróć\n'''))
+5. Wróć\n''')
             match ksiazka_decision:
                 case 1:
-                    nowa_czy_duplikat = int(input('''Chcesz dodać:
+                    nowa_czy_duplikat = validated_input('''Chcesz dodać:
 1. Nową książkę
 2. Duplikat
-3. Wróć\n'''))
+3. Wróć\n''')
                     match nowa_czy_duplikat:
                         case 1:
                             add_new_book_prompt()
@@ -81,14 +82,14 @@ while (True):
                     continue
 
         case 3:
-            wypozyczenie_decision = int(input('''Wybierz akcję którą chcesz wykonać:"
+            wypozyczenie_decision = validated_input('''Wybierz akcję którą chcesz wykonać:"
 1. Utwórz wypozyczenie
 2. Usuń wypozyczenie
 3. Edytuj wypozyczenie
 4. Zwróć książkę
 5. Wyświetl wszystkie wypożyczenia
 6. Przedłuż wypożyczenie
-7. Wróć\n'''))
+7. Wróć\n''')
             match wypozyczenie_decision:
                 case 1:
                     add_new_rent()
@@ -109,12 +110,12 @@ while (True):
                     continue
 
         case 4:
-            rezerwacja_decision = int(input('''Wybierz akcję którą chcesz wykonać:
+            rezerwacja_decision = validated_input('''Wybierz akcję którą chcesz wykonać:
 1. Utwórz rezerwację
 2. Usuń rezerwację
 3. Edytuj rezerwację
 4. Wyświetl wszystkie rezerwacje
-5. Wróć\n'''))
+5. Wróć\n''')
             match rezerwacja_decision:
                 case 1:
                     add_new_reservation()
