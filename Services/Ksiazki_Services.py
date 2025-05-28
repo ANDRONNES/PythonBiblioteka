@@ -177,15 +177,28 @@ def isBookReserved(id_ksiazki: int) -> bool:
 
 
 def add_new_book_prompt():
-    tytul = input_non_empty("Podaj tutuł książki: ")
-    autor_imie = input_non_empty("Podaj imie autora: ")
-    autor_nazwisko = input_non_empty("Podaj nazwisko autora: ")
-    isbn = input_non_empty("Podaj numer ISBN: ")
-    wydawnictwo = input_non_empty("Podaj wydawnictwo: ")
-    l_stron = validated_input("Podaj liczbe stron: ")
-    status = input_non_empty("Podaj status: ")
+    try:
+        tytul = input_non_empty("Podaj tutuł książki: ")
+        if any(char.isdigit() for char in tytul):
+            raise DataConflictException
+        autor_imie = input_non_empty("Podaj imie autora: ")
+        if any(char.isdigit() for char in autor_imie):
+            raise DataConflictException
+        autor_nazwisko = input_non_empty("Podaj nazwisko autora: ")
+        if any(char.isdigit() for char in autor_nazwisko):
+            raise DataConflictException
+        isbn = input_non_empty("Podaj numer ISBN: ")
+        wydawnictwo = input_non_empty("Podaj wydawnictwo: ")
+        if any(char.isdigit() for char in wydawnictwo):
+            raise DataConflictException
+        l_stron = validated_input("Podaj liczbe stron: ")
+        status = input_non_empty("Podaj status: ")
+        if any(char.isdigit() for char in status):
+            raise DataConflictException
 
-    add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status)
+        add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status)
+    except DataConflictException:
+        print("Ta wartość nie może zawierać liczby")
 
 
 def addDuplicateBook():

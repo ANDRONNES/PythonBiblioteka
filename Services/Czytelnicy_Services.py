@@ -24,25 +24,40 @@ def input_non_empty(prompt="Wprowadź wartość: "):
             print("Wartość nie może być pusta. Spróbuj ponownie.")
 
 def add_new_reader():
-    Imie = input_non_empty("Podaj imię czytelnika ")
-    Nazwisko = input_non_empty("Podaj nazwisko czytelnika ")
-    Numer_Telefonu = input_non_empty("Podaj numer telefonu czytelnika ")
-    Numer_Mieszkania = validated_input("Podaj numer mieszkania czytelnika ")
-    Numer_Domu = validated_input("Podaj numer domu czytelnika ")
-    Ulica = input_non_empty("Podaj ulicę czytelnika ")
-    Miasto = input_non_empty("Podaj miasto czytelnika ")
     pattern = r'^\+?\d+$'
     try:
+        Imie = input_non_empty("Podaj imię czytelnika ")
+        if any(char.isdigit() for char in Imie):
+            raise DataConflictException
+
+        Nazwisko = input_non_empty("Podaj nazwisko czytelnika ")
+        if any(char.isdigit() for char in Nazwisko):
+            raise DataConflictException
+
+        Numer_Telefonu = input_non_empty("Podaj numer telefonu czytelnika ")
         if not re.fullmatch(pattern, Numer_Telefonu):
             raise Invalid_NumerTelefonu_Exception
-        else:
-            cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto,Naleznosc)
-                            VALUES (?,?,?,?,?,?,?,?)''',
-                           (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto, 0))
-            conn.commit()
-            print("Czytelnik został dodany do bazy")
+
+        Numer_Mieszkania = validated_input("Podaj numer mieszkania czytelnika ")
+        Numer_Domu = validated_input("Podaj numer domu czytelnika ")
+
+        Ulica = input_non_empty("Podaj ulicę czytelnika ")
+        if any(char.isdigit() for char in Ulica):
+            raise DataConflictException
+
+        Miasto = input_non_empty("Podaj miasto czytelnika ")
+        if any(char.isdigit() for char in Miasto):
+            raise DataConflictException
+
+        cursor.execute('''Insert INTO Czytelnik(Imie,Nazwisko,Numer_Telefonu,Adres_Numer_Mieszkania,Adres_Numer_Domu,Adres_Ulica,Adres_Miasto,Naleznosc)
+                        VALUES (?,?,?,?,?,?,?,?)''',
+                       (Imie, Nazwisko, Numer_Telefonu, Numer_Mieszkania, Numer_Domu, Ulica, Miasto, 0))
+        conn.commit()
+        print("Czytelnik został dodany do bazy")
     except Invalid_NumerTelefonu_Exception:
         print("Numer telefonu może składać się tylko z cyfr")
+    except DataConflictException:
+        print("Ta wartość nie może zawierać liczby")
 
 
 def delete_reader():
@@ -90,15 +105,26 @@ def edit_reader():
 5. Wyjdź\n''')
             match whatToEdit:
                 case 1:
-                    newImie = input_non_empty("Podaj nowe Imie ")
-                    cursor.execute('UPDATE Czytelnik SET Imie = ? Where id_czytelnika = ?',
-                                   (newImie, id_czytelnika,))
-                    conn.commit()
+                    try:
+                        newImie = input_non_empty("Podaj nowe Imie ")
+                        if any(char.isdigit() for char in newImie):
+                            raise DataConflictException
+                        cursor.execute('UPDATE Czytelnik SET Imie = ? Where id_czytelnika = ?',
+                                       (newImie, id_czytelnika,))
+                        conn.commit()
+                    except DataConflictException:
+                        print("Imie nie może zawierać liczby")
+
                 case 2:
-                    newNazwisko = input_non_empty("Podaj nowe Nazwisko ")
-                    cursor.execute('UPDATE Czytelnik SET Nazwisko = ? Where id_czytelnika = ?',
-                                   (newNazwisko, id_czytelnika,))
-                    conn.commit()
+                    try:
+                        newNazwisko = input_non_empty("Podaj nowe Nazwisko ")
+                        if any(char.isdigit() for char in newNazwisko):
+                            raise DataConflictException
+                        cursor.execute('UPDATE Czytelnik SET Nazwisko = ? Where id_czytelnika = ?',
+                                       (newNazwisko, id_czytelnika,))
+                        conn.commit()
+                    except DataConflictException:
+                        print("Nazwisko nie może zawierać liczby")
                 case 3:
                     newNumer_Telefonu = input_non_empty("Podaj nowy Numer Telefonu ")
                     pattern = r'^\+?\d+$'
