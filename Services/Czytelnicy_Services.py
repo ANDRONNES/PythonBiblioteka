@@ -122,17 +122,33 @@ def edit_reader():
                                 (Numer_Domu, id_czytelnika,))
                             conn.commit()
                         case 3:
-                            Ulica = input("Podaj nową ulicę czytelnika ")
-                            cursor.execute(
-                                'Update Czytelnik SET Adres_Ulica = ? where id_czytelnika = ?',
-                                (Ulica, id_czytelnika,))
-                            conn.commit()
+                            try:
+                                Ulica = input("Podaj nową ulicę czytelnika ")
+                                if any(char.isdigit() for char in Ulica):
+                                    raise DataConflictException
+                                elif len(Ulica) == 0:
+                                    raise DataConflictException("Podana Ulica jest pusta")
+                                else:
+                                    cursor.execute(
+                                        'Update Czytelnik SET Adres_Ulica = ? where id_czytelnika = ?',
+                                        (Ulica, id_czytelnika,))
+                                    conn.commit()
+                            except DataConflictException:
+                                print("Podano tekst zawierający liczby.")
                         case 4:
-                            Miasto = input("Podaj nowe miasto czytelnika ")
-                            cursor.execute(
-                                'Update Czytelnik SET Adres_Miasto = ? where id_czytelnika = ?',
-                                (Miasto, id_czytelnika,))
-                            conn.commit()
+                            try:
+                                Miasto = input("Podaj nowe miasto czytelnika ")
+                                if any(char.isdigit() for char in Miasto):
+                                    raise DataConflictException
+                                elif len(Miasto) == 0:
+                                    raise DataConflictException
+                                else:
+                                    cursor.execute(
+                                        'Update Czytelnik SET Adres_Miasto = ? where id_czytelnika = ?',
+                                        (Miasto, id_czytelnika,))
+                                    conn.commit()
+                            except DataConflictException:
+                                print("Niepoprawnie wprowadziłeś dane")
 
 
     except Invalid_CzytelnikId_Exception:
