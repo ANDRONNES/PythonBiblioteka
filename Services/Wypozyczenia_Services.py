@@ -8,16 +8,23 @@ from Exceptions import *
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
 
+def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spróbuj ponownie."):
+    while True:
+        user_input = input(prompt)
+        try:
+            return cast_func(user_input)
+        except Exception:
+            print(error_msg)
 
 def add_new_rent():
     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
     try:
-        Id_ksiazka = int(input("Podaj id ksiazki "))
+        Id_ksiazka = validated_input("Podaj id ksiazki ")
         if not isBookExists(Id_ksiazka):
             raise Invalid_KsiazkaId_Exception
         else:
             print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
-            Id_czytelnik = int(input("Podaj id czytelnika "))
+            Id_czytelnik = validated_input("Podaj id czytelnika ")
             if not isReaderExists(Id_czytelnik):
                 raise Invalid_CzytelnikId_Exception
             else:
@@ -67,7 +74,7 @@ def add_new_rent():
 
 def delete_rent():
     print(tabulate(get_all_rents(), headers='keys', tablefmt='fancy_grid'))
-    Id_wypozycznie = int(input("Podaj id wypozyczenia które chcesz usunąć "))
+    Id_wypozycznie = validated_input("Podaj id wypozyczenia które chcesz usunąć ")
     cursor.execute('Delete from Wypozyczenie Where id_wypozyczenia = ?', (Id_wypozycznie,))
     try:
         if cursor.rowcount == 0:
@@ -102,22 +109,22 @@ def get_all_rents():
 
 def edit_rent():
     print(tabulate(get_all_rents(), headers='keys', tablefmt='fancy_grid'))
-    id_wypozyczenia = int(input("Podaj id wypozyczenia którą chcesz edytować "))
+    id_wypozyczenia = validated_input("Podaj id wypozyczenia którą chcesz edytować ")
     try:
         cursor.execute('Select count(*) from Wypozyczenie where id_wypozyczenia = ?', (id_wypozyczenia,))
         if cursor.rowcount == 0:
             raise Invalid_WypozyczenieId_Exception
         else:
-            whatToEdit = int(input('''Wybierz parametr który chcesz edytować: 
+            whatToEdit = validated_input('''Wybierz parametr który chcesz edytować: 
 1. Książka
 2. Czytelnik 
 3. Data_Wypozyczenia
-4. Data_Zwrotu\n'''))
+4. Data_Zwrotu\n''')
 
             match whatToEdit:
                 case 1:
                     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
-                    newBook_id = int(input("Podaj id ksiazki na którą chesz zamienić "))
+                    newBook_id = validated_input("Podaj id ksiazki na którą chesz zamienić ")
                     try:
                         if not isBookExists(newBook_id):
                             raise Invalid_KsiazkaId_Exception
@@ -149,7 +156,7 @@ def edit_rent():
                 case 2:
                     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
                     try:
-                        newCzytelnik_id = int(input("Podaj id czytelnika na którego chesz zamienić "))
+                        newCzytelnik_id = validated_input("Podaj id czytelnika na którego chesz zamienić ")
                         cursor.execute('Select Czytelnik_id_czytelnika From wypozyczenie where id_wypozyczenia = ?',(id_wypozyczenia,))
                         if (newCzytelnik_id == cursor.fetchone()[0]):
                             raise DataConflictException
@@ -231,7 +238,7 @@ def przedluzenie_wypozyczenia():
     rents = get_all_rents()
     if not rents:
         return
-    id_wypozyczenia = int(input("Podaj id wypożyczenia które chcesz przedłużyć "))
+    id_wypozyczenia = validated_input("Podaj id wypożyczenia które chcesz przedłużyć ")
     try:
         if not isRentExists(id_wypozyczenia):
             raise Invalid_WypozyczenieId_Exception
@@ -286,7 +293,7 @@ def return_book():
         return
     print(tabulate(rentsReaders, headers='keys', tablefmt='fancy_grid'))
 
-    id_czytelnika = int(input("Podaj id czytelnika, który chce zwrócić książkę "))
+    id_czytelnika = validated_input("Podaj id czytelnika, który chce zwrócić książkę ")
     try:
         if not isReaderExists(id_czytelnika):
             raise Invalid_CzytelnikId_Exception

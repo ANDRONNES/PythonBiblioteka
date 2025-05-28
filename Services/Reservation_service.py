@@ -9,18 +9,26 @@ from Services import *
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
 
+def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spróbuj ponownie."):
+    while True:
+        user_input = input(prompt)
+        try:
+            return cast_func(user_input)
+        except Exception:
+            print(error_msg)
+
 
 def add_new_reservation():
     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
     try:
-        Id_ksiazka = int(input("Podaj id ksiazki "))
+        Id_ksiazka = validated_input("Podaj id ksiazki ")
         if not isBookExists(Id_ksiazka):
             raise Invalid_KsiazkaId_Exception
         elif not isBookAvailable(Id_ksiazka):
             raise BookNotAvaliable_Exception
         else:
             print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
-            Id_czytelnik = int(input("Podaj id czytelnika "))
+            Id_czytelnik = validated_input("Podaj id czytelnika ")
             if not isReaderExists(Id_czytelnik):
                 raise Invalid_RezerwacjaId_Exception
             else:
@@ -72,7 +80,7 @@ def isReservationExists(id_rezerwacji: int) -> bool:
 def delete_reservation():
     print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
     try:
-        Id_rezerwacji = int(input("Podaj id rezerwacji którą chcesz usunąć "))
+        Id_rezerwacji = validated_input("Podaj id rezerwacji którą chcesz usunąć ")
         if not isReservationExists(Id_rezerwacji):
             raise Invalid_RezerwacjaId_Exception
         else:
@@ -110,21 +118,21 @@ def get_all_reservations():
 
 def edit_reservation():
     print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
-    id_rezerwacji = int(input("Podaj id rezerwacji którą chcesz edytować "))
+    id_rezerwacji = validated_input("Podaj id rezerwacji którą chcesz edytować ")
     try:
         if not isReservationExists(id_rezerwacji):
             raise Invalid_RezerwacjaId_Exception
         else:
-            whatToEdit = int(input('''Wybierz akcję którą chcesz wykonać: 
+            whatToEdit = validated_input('''Wybierz akcję którą chcesz wykonać: 
 1. Zmień książkę
 2. Zmień czytelnika
 3. Zmień Datę rospoczęcia rezerwacji
-4. Zmień Datę zakończenia rezerwacji\n'''))
+4. Zmień Datę zakończenia rezerwacji\n''')
 
             match whatToEdit:
                 case 1:
                     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
-                    newBook_id = int(input("Podaj id ksiazki na którą chesz zamienić "))
+                    newBook_id = validated_input("Podaj id ksiazki na którą chesz zamienić ")
                     try:
                         if not isBookExists(newBook_id):
                             raise Invalid_KsiazkaId_Exception
@@ -159,7 +167,7 @@ def edit_reservation():
                 case 2:
                     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
                     try:
-                        newCzytelnik_id = int(input("Podaj id czytelnika na którego chesz zamienić "))
+                        newCzytelnik_id = validated_input("Podaj id czytelnika na którego chesz zamienić ")
                         cursor.execute('Select Czytelnik_id_czytelnika From rezerwacja where id_rezerwacji = ?',(id_rezerwacji,))
 
                         if (newCzytelnik_id == cursor.fetchone()[0]):

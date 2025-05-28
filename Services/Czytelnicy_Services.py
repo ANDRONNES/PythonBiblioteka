@@ -7,13 +7,20 @@ from Models import Czytelnik, Historia
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
 
+def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spróbuj ponownie."):
+    while True:
+        user_input = input(prompt)
+        try:
+            return cast_func(user_input)
+        except Exception:
+            print(error_msg)
 
 def add_new_reader():
     Imie = input("Podaj imię czytelnika ")
     Nazwisko = input("Podaj nazwisko czytelnika ")
     Numer_Telefonu = input("Podaj numer telefonu czytelnika ")
-    Numer_Mieszkania = int(input("Podaj numer mieszkania czytelnika "))
-    Numer_Domu = int(input("Podaj numer domu czytelnika "))
+    Numer_Mieszkania = validated_input("Podaj numer mieszkania czytelnika ")
+    Numer_Domu = validated_input("Podaj numer domu czytelnika ")
     Ulica = input("Podaj ulicę czytelnika ")
     Miasto = input("Podaj miasto czytelnika ")
     pattern = r'^\+?\d+$'
@@ -32,7 +39,7 @@ def add_new_reader():
 
 def delete_reader():
     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
-    idCzytelnika = int(input("podaj id czytelnika którego chcesz usunąć "))
+    idCzytelnika = validated_input("podaj id czytelnika którego chcesz usunąć ")
     cursor.execute('DELETE FROM Czytelnik WHERE id_czytelnika = ?', (idCzytelnika,))
 
     try:
@@ -62,16 +69,16 @@ def get_all_readers():
 
 def edit_reader():
     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
-    id_czytelnika = int(input("Podaj id czytelnika którego chcesz edytować "))
+    id_czytelnika = validated_input("Podaj id czytelnika którego chcesz edytować ")
     try:
         if not isReaderExists(id_czytelnika):
             raise Invalid_CzytelnikId_Exception
         else:
-            whatToEdit = int(input('''Wybierz parametr który chcesz edytować: 
+            whatToEdit = validated_input('''Wybierz parametr który chcesz edytować: 
 1. Imie
 2. Nazwisko 
 3. Numer_Telefonu
-4. Adres\n'''))
+4. Adres\n''')
             match whatToEdit:
                 case 1:
                     newImie = input("Podaj nowe Imie ")
@@ -96,8 +103,8 @@ def edit_reader():
                     except Invalid_NumerTelefonu_Exception:
                         print("Numer telefonu może składać się tylko z cyfr")
                 case 4:
-                    Numer_Mieszkania = int(input("Podaj nowy numer mieszkania czytelnika "))
-                    Numer_Domu = int(input("Podaj nowy numer domu czytelnika "))
+                    Numer_Mieszkania = validated_input("Podaj nowy numer mieszkania czytelnika ")
+                    Numer_Domu = validated_input("Podaj nowy numer domu czytelnika ")
                     Ulica = input("Podaj nową ulicę czytelnika ")
                     Miasto = input("Podaj nowe miasto czytelnika ")
 
@@ -118,7 +125,7 @@ def isReaderExists(Id_czytelnik: int) -> bool:
 
 def get_all_reader_history():
     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
-    Id_czytelnik = int(input("Podaj id czytelnika którego historię chcesz wyświetlić "))
+    Id_czytelnik = validated_input("Podaj id czytelnika którego historię chcesz wyświetlić ")
     # exception? jeśli podac literę to wypierdoli cały program
 
     hisotryList = []

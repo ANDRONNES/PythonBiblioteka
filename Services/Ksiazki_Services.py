@@ -8,6 +8,14 @@ from Models import Ksiazka
 conn = sqlite3.connect('Data Base/biblioteka.db')
 cursor = conn.cursor()
 
+def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spróbuj ponownie."):
+    while True:
+        user_input = input(prompt)
+        try:
+            return cast_func(user_input)
+        except Exception:
+            print(error_msg)
+
 
 def get_status_id(nazwa_statusu: str):
     cursor.execute('SELECT * FROM Status WHERE Nazwa = ? ', (nazwa_statusu,))
@@ -20,7 +28,7 @@ def get_status_id(nazwa_statusu: str):
 
 def delete_book():
     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
-    idKsiazki = int(input("podaj id ksiązki którą chcesz usunąć "))
+    idKsiazki = validated_input("podaj id ksiązki którą chcesz usunąć ")
     cursor.execute('DELETE FROM Ksiazka WHERE id_ksiazki = ?', (idKsiazki,))
 
     if cursor.rowcount == 0:
@@ -80,12 +88,12 @@ def edit_book():
         if not isBookExists(id_ksiazki):
             raise Invalid_KsiazkaId_Exception
         else:
-            whatToEdit = int(input('''Wybierz parametr który chcesz edytować: 
+            whatToEdit = validated_input('''Wybierz parametr który chcesz edytować: 
 1. Tytul
 2. Numer_ISBN 
 3. Wydawnictwo
 4. Liczba_stron
-5. Status\n'''))
+5. Status\n''')
 
             try:
                 match whatToEdit:
@@ -163,7 +171,7 @@ def add_new_book_prompt():
     autor_nazwisko = input("Podaj nazwisko autora: ")
     isbn = input("Podaj numer ISBN: ")
     wydawnictwo = input("Podaj wydawnictwo: ")
-    l_stron = int(input("Podaj liczbe stron: "))
+    l_stron = validated_input("Podaj liczbe stron: ")
     status = input("Podaj status: ")
 
     add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status)
