@@ -34,7 +34,10 @@ while (True):
                     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
                 case 5:
                     headers = ["Imię", "Nazwisko", "Tytuł Książki", "Operacja", "Data Operacji"]
-                    print(tabulate(get_all_reader_history(), headers=headers, tablefmt='fancy_grid'))
+                    res = get_all_reader_history()
+                    if res:
+                        print(tabulate(res, headers=headers, tablefmt='fancy_grid'))
+
                 case 6:
                     continue
                 case _:

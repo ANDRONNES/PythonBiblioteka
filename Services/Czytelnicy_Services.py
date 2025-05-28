@@ -103,15 +103,37 @@ def edit_reader():
                     except Invalid_NumerTelefonu_Exception:
                         print("Numer telefonu może składać się tylko z cyfr")
                 case 4:
-                    Numer_Mieszkania = validated_input("Podaj nowy numer mieszkania czytelnika ")
-                    Numer_Domu = validated_input("Podaj nowy numer domu czytelnika ")
-                    Ulica = input("Podaj nową ulicę czytelnika ")
-                    Miasto = input("Podaj nowe miasto czytelnika ")
+                    whatToEdit2 = validated_input('''Wybierz parametr który chcesz edytować: 
+1. Numer mieszkania
+2. Numer domu 
+3. Ulica
+4. Miasto\n''')
+                    match whatToEdit2:
+                        case 1:
+                            Numer_Mieszkania = validated_input("Podaj nowy numer mieszkania czytelnika ")
+                            cursor.execute(
+                                'Update Czytelnik SET Adres_Numer_Mieszkania = ? where id_czytelnika = ?',
+                                (Numer_Mieszkania, id_czytelnika,))
+                            conn.commit()
+                        case 2:
+                            Numer_Domu = validated_input("Podaj nowy numer domu czytelnika ")
+                            cursor.execute(
+                                'Update Czytelnik SET Adres_Numer_Domu = ? where id_czytelnika = ?',
+                                (Numer_Domu, id_czytelnika,))
+                            conn.commit()
+                        case 3:
+                            Ulica = input("Podaj nową ulicę czytelnika ")
+                            cursor.execute(
+                                'Update Czytelnik SET Adres_Ulica = ? where id_czytelnika = ?',
+                                (Ulica, id_czytelnika,))
+                            conn.commit()
+                        case 4:
+                            Miasto = input("Podaj nowe miasto czytelnika ")
+                            cursor.execute(
+                                'Update Czytelnik SET Adres_Miasto = ? where id_czytelnika = ?',
+                                (Miasto, id_czytelnika,))
+                            conn.commit()
 
-                    cursor.execute(
-                        'Update Czytelnik SET Adres_Numer_Mieszkania = ?,Adres_Numer_Domu = ?,Adres_Ulica = ?,Adres_Miasto = ? where id_czytelnika = ?',
-                        (Numer_Mieszkania, Numer_Domu, Ulica, Miasto, id_czytelnika,))
-                    conn.commit()
 
     except Invalid_CzytelnikId_Exception:
         print("Nie istnieje czytelnika o podanym id")
