@@ -15,14 +15,22 @@ def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spr
         except Exception:
             print(error_msg)
 
+def input_non_empty(prompt="Wprowadź wartość: "):
+    while True:
+        user_input = input(prompt).strip()
+        if user_input:
+            return user_input
+        else:
+            print("Wartość nie może być pusta. Spróbuj ponownie.")
+
 def add_new_reader():
-    Imie = input("Podaj imię czytelnika ")
-    Nazwisko = input("Podaj nazwisko czytelnika ")
-    Numer_Telefonu = input("Podaj numer telefonu czytelnika ")
+    Imie = input_non_empty("Podaj imię czytelnika ")
+    Nazwisko = input_non_empty("Podaj nazwisko czytelnika ")
+    Numer_Telefonu = input_non_empty("Podaj numer telefonu czytelnika ")
     Numer_Mieszkania = validated_input("Podaj numer mieszkania czytelnika ")
     Numer_Domu = validated_input("Podaj numer domu czytelnika ")
-    Ulica = input("Podaj ulicę czytelnika ")
-    Miasto = input("Podaj miasto czytelnika ")
+    Ulica = input_non_empty("Podaj ulicę czytelnika ")
+    Miasto = input_non_empty("Podaj miasto czytelnika ")
     pattern = r'^\+?\d+$'
     try:
         if not re.fullmatch(pattern, Numer_Telefonu):
@@ -82,17 +90,17 @@ def edit_reader():
 5. Wyjdź\n''')
             match whatToEdit:
                 case 1:
-                    newImie = input("Podaj nowe Imie ")
+                    newImie = input_non_empty("Podaj nowe Imie ")
                     cursor.execute('UPDATE Czytelnik SET Imie = ? Where id_czytelnika = ?',
                                    (newImie, id_czytelnika,))
                     conn.commit()
                 case 2:
-                    newNazwisko = input("Podaj nowe Nazwisko ")
+                    newNazwisko = input_non_empty("Podaj nowe Nazwisko ")
                     cursor.execute('UPDATE Czytelnik SET Nazwisko = ? Where id_czytelnika = ?',
                                    (newNazwisko, id_czytelnika,))
                     conn.commit()
                 case 3:
-                    newNumer_Telefonu = input("Podaj nowy Numer Telefonu ")
+                    newNumer_Telefonu = input_non_empty("Podaj nowy Numer Telefonu ")
                     pattern = r'^\+?\d+$'
                     try:
                         if not re.fullmatch(pattern, newNumer_Telefonu):
@@ -127,7 +135,7 @@ def edit_reader():
                             conn.commit()
                         case 3:
                             try:
-                                Ulica = input("Podaj nową ulicę czytelnika ")
+                                Ulica = input_non_empty("Podaj nową ulicę czytelnika ")
                                 if any(char.isdigit() for char in Ulica):
                                     raise DataConflictException
                                 elif len(Ulica) == 0:
@@ -141,7 +149,7 @@ def edit_reader():
                                 print("Podano tekst zawierający liczby.")
                         case 4:
                             try:
-                                Miasto = input("Podaj nowe miasto czytelnika ")
+                                Miasto = input_non_empty("Podaj nowe miasto czytelnika ")
                                 if any(char.isdigit() for char in Miasto):
                                     raise DataConflictException
                                 elif len(Miasto) == 0:

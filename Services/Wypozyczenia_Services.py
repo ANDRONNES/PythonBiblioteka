@@ -16,6 +16,15 @@ def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spr
         except Exception:
             print(error_msg)
 
+def input_non_empty(prompt="Wprowadź wartość: "):
+    while True:
+        user_input = input(prompt).strip()
+        if user_input:
+            return user_input
+        else:
+            print("Wartość nie może być pusta. Spróbuj ponownie.")
+
+
 def add_new_rent():
     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
     try:
@@ -30,13 +39,13 @@ def add_new_rent():
             else:
 
                 try:
-                    str_data_wyp = input("Podaj datę wypozyczenia (YYYY-MM-DD): ")
+                    str_data_wyp = input_non_empty("Podaj datę wypozyczenia (YYYY-MM-DD): ")
                     Data_Wypozyczenia = datetime.strptime(str_data_wyp, "%Y-%m-%d").date()
                 except ValueError:
                     raise InvalidDateFormat_Exception
 
                 try:
-                    str_data_zwrotu = input("Podaj datę zwrotu (YYYY-MM-DD): ")
+                    str_data_zwrotu = input_non_empty("Podaj datę zwrotu (YYYY-MM-DD): ")
                     Data_Zwrotu = datetime.strptime(str_data_zwrotu, "%Y-%m-%d").date()
                 except ValueError:
                     raise InvalidDateFormat_Exception
@@ -180,7 +189,7 @@ def edit_rent():
                     except Invalid_CzytelnikId_Exception:
                         print("Nie ma czytelnika o takim ID")
                 case 3:
-                    newData_Wypozyczenia = input("Podaj datę wypozyczenia na którą chcesz zamienić ")
+                    newData_Wypozyczenia = input_non_empty("Podaj datę wypozyczenia na którą chcesz zamienić ")
                     try:
                         Data_Wypozyczenia = datetime.strptime(newData_Wypozyczenia, "%Y-%m-%d").date()
 
@@ -206,7 +215,7 @@ def edit_rent():
                     except DataConflictException:
                         print("Data wypozyczenia nie może być wcześniej niż data zwrotu")
                 case 4:
-                    newData_Zwrotu = input("Podaj datę zwrotu na którą chcesz zamienić ")
+                    newData_Zwrotu = input_non_empty("Podaj datę zwrotu na którą chcesz zamienić ")
                     try:
                         Data_Zwrotu = datetime.strptime(newData_Zwrotu, "%Y-%m-%d").date()
                         cursor.execute('SELECT Data_Wypozyczenia FROM Wypozyczenie WHERE id_wypozyczenia = ?',(id_wypozyczenia,))
@@ -249,7 +258,7 @@ def przedluzenie_wypozyczenia():
     except Invalid_WypozyczenieId_Exception:
         print("Nie ma takiego wypożyczenia")
     try:
-        dataDo = input("Podaj datę do kiedy chcesz przedłużyć wypożyczenie (yyyy-mm-dd) ")
+        dataDo = input_non_empty("Podaj datę do kiedy chcesz przedłużyć wypożyczenie (yyyy-mm-dd) ")
         new_Data_Zwrotu = datetime.strptime(dataDo, "%Y-%m-%d").date()
     except ValueError:
         print("podano datę w złym formacie")
@@ -312,7 +321,7 @@ def return_book():
                 for row in wypozyczenia:
                     print(
                         f"ID wypożyczenia: {row[0]}, ID książki: {row[1]}, ID czytelnika: {row[2]}, Data wypożyczenia: {row[3]}, Data zwrotu: {row[4]}")
-                id_ksiazka = input("Podaj ID książki, którą chcesz zwrócić. ")
+                id_ksiazka = input_non_empty("Podaj ID książki, którą chcesz zwrócić. ")
                 bool_found = False
                 for row in wypozyczenia:
                     if str(row[1]) == str(id_ksiazka):
@@ -370,9 +379,9 @@ def return_book():
                 if old_data_zwrotu < date.today():
                     roznica = date.today() - old_data_zwrotu
                     roznica_days = roznica.days
-                    dlug = roznica_days * 0.50
+                    dlug = roznica_days * 1
                     print("Użytkownik o id ", id_czytelnika, " musi uregulować należność w wysokości ", dlug, " zł")
-                    cursor.execute('UPDATE Czytelnik SET Naleznosc = ? WHERE id_czytelnika = ? ',(dlug * 100, id_czytelnika))
+                    cursor.execute('UPDATE Czytelnik SET Naleznosc = ? WHERE id_czytelnika = ? ',(dlug , id_czytelnika))
                 conn.commit()
 
 

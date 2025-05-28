@@ -17,6 +17,14 @@ def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spr
         except Exception:
             print(error_msg)
 
+def input_non_empty(prompt="Wprowadź wartość: "):
+    while True:
+        user_input = input(prompt).strip()
+        if user_input:
+            return user_input
+        else:
+            print("Wartość nie może być pusta. Spróbuj ponownie.")
+
 
 def add_new_reservation():
     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
@@ -33,13 +41,13 @@ def add_new_reservation():
                 raise Invalid_RezerwacjaId_Exception
             else:
                 try:
-                    str_data_rozp = input("Podaj datę rozpoczęcia rezerwacji (YYYY-MM-DD): ")
+                    str_data_rozp = input_non_empty("Podaj datę rozpoczęcia rezerwacji (YYYY-MM-DD): ")
                     Data_rozpoczecnia_rezerwacji = datetime.strptime(str_data_rozp, "%Y-%m-%d").date()
                 except ValueError:
                     raise InvalidDateFormat_Exception
 
                 try:
-                    str_data_zak = input("Podaj datę zakończenia rezerwacji (YYYY-MM-DD): ")
+                    str_data_zak = input_non_empty("Podaj datę zakończenia rezerwacji (YYYY-MM-DD): ")
                     Data_zakonczenia_rezerwacji = datetime.strptime(str_data_zak, "%Y-%m-%d").date()
                 except ValueError:
                     raise InvalidDateFormat_Exception
@@ -195,7 +203,7 @@ def edit_reservation():
                         print("Nie można zmienić czytelnika na tego samego")
 
                 case 3:
-                    newData_Rezerwacji = input("Podaj datę rezerwacji na którą chcesz zamienić ")
+                    newData_Rezerwacji = input_non_empty("Podaj datę rezerwacji na którą chcesz zamienić ")
                     try:
                         Data_Rezerwacji = datetime.strptime(newData_Rezerwacji, "%Y-%m-%d").date()
                         cursor.execute('SELECT Data_zakonczenia FROM Rezerwacja WHERE id_rezerwacji = ?',(id_rezerwacji,))
@@ -221,7 +229,7 @@ def edit_reservation():
                     except DataConflictException:
                         print("Data rozpoczecia nie może być wcześniejsza niż data zakonczenia")
                 case 4:
-                    newData_Zwrotu = input("Podaj datę zakonczenia rezerwacji na którą chcesz zamienić ")
+                    newData_Zwrotu = input_non_empty("Podaj datę zakonczenia rezerwacji na którą chcesz zamienić ")
                     try:
                         Data_Zwrotu = datetime.strptime(newData_Zwrotu, "%Y-%m-%d").date()
                         cursor.execute('SELECT Data_zakonczenia FROM Rezerwacja WHERE id_rezerwacji = ?',(id_rezerwacji,))

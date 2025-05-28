@@ -16,6 +16,14 @@ def validated_input(prompt, cast_func=int, error_msg="Niepoprawna wartość. Spr
         except Exception:
             print(error_msg)
 
+def input_non_empty(prompt="Wprowadź wartość: "):
+    while True:
+        user_input = input(prompt).strip()
+        if user_input:
+            return user_input
+        else:
+            print("Wartość nie może być pusta. Spróbuj ponownie.")
+
 
 def get_status_id(nazwa_statusu: str):
     cursor.execute('SELECT * FROM Status WHERE Nazwa = ? ', (nazwa_statusu,))
@@ -84,7 +92,7 @@ def get_all_books():
 def edit_book():
     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
     try:
-        id_ksiazki = input("Podaj id ksiazki którą chesz edytować ")
+        id_ksiazki = input_non_empty("Podaj id ksiazki którą chesz edytować ")
         if not isBookExists(id_ksiazki):
             raise Invalid_KsiazkaId_Exception
         else:
@@ -99,34 +107,34 @@ def edit_book():
             try:
                 match whatToEdit:
                     case 1:
-                        title = input("Podaj nowy tytuł ")
+                        title = input_non_empty("Podaj nowy tytuł ")
                         cursor.execute('UPDATE Ksiazka SET Tytul = ? WHERE id_ksiazki =?', (title, id_ksiazki))
                         conn.commit()
                         print("Tytuł książki został zmieniony ")
                     case 2:
-                        isbn = input("Podaj nowy ISBN ")
+                        isbn = input_non_empty("Podaj nowy ISBN ")
                         cursor.execute('UPDATE Ksiazka SET Numer_ISBN = ? WHERE id_ksiazki =?', (isbn, id_ksiazki))
                         conn.commit()
                         print("ISBN książki został zmieniony ")
                     case 3:
-                        wydawnictwo = input("Podaj nowe wydawnictwo ")
+                        wydawnictwo = input_non_empty("Podaj nowe wydawnictwo ")
                         cursor.execute('UPDATE Ksiazka SET Wydawnictwo = ? WHERE id_ksiazki =?',
                                        (wydawnictwo, id_ksiazki))
                         conn.commit()
                         print("Wydawnictwo książki zostało zmienione ")
                     case 4:
-                        liczba_stron = input("Podaj nową lcizbe stron ")
+                        liczba_stron = input_non_empty("Podaj nową lcizbe stron ")
                         cursor.execute('UPDATE Ksiazka SET Liczba_stron = ? WHERE id_ksiazki =?',
                                        (liczba_stron, id_ksiazki))
                         conn.commit()
                         print("Liczba stron książki została zmieniona")
                     case 5:
-                        status = input("Podaj nowy status ")
+                        status = input_non_empty("Podaj nowy status ")
 
                         while (True):
                             id_status = get_status_id(status)
                             if id_status == -1:
-                                status = input(
+                                status = input_non_empty(
                                     "Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
                             else:
                                 break
@@ -169,13 +177,13 @@ def isBookReserved(id_ksiazki: int) -> bool:
 
 
 def add_new_book_prompt():
-    tytul = input("Podaj tutuł książki: ")
-    autor_imie = input("Podaj imie autora: ")
-    autor_nazwisko = input("Podaj nazwisko autora: ")
-    isbn = input("Podaj numer ISBN: ")
-    wydawnictwo = input("Podaj wydawnictwo: ")
+    tytul = input_non_empty("Podaj tutuł książki: ")
+    autor_imie = input_non_empty("Podaj imie autora: ")
+    autor_nazwisko = input_non_empty("Podaj nazwisko autora: ")
+    isbn = input_non_empty("Podaj numer ISBN: ")
+    wydawnictwo = input_non_empty("Podaj wydawnictwo: ")
     l_stron = validated_input("Podaj liczbe stron: ")
-    status = input("Podaj status: ")
+    status = input_non_empty("Podaj status: ")
 
     add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, status)
 
@@ -184,7 +192,7 @@ def addDuplicateBook():
     allBooks = get_all_books()
     # print(allBooks)
     print(tabulate(allBooks, headers='keys', tablefmt='fancy_grid'))
-    id_ksiazki = input("Podaj id książki, którą chcesz duplikować: ")
+    id_ksiazki = input_non_empty("Podaj id książki, którą chcesz duplikować: ")
     try:
         if not isBookExists(id_ksiazki):
             raise Invalid_KsiazkaId_Exception
@@ -213,7 +221,7 @@ def add_new_book(tytul, autor_imie, autor_nazwisko, isbn, wydawnictwo, l_stron, 
     while (True):
         id_status = get_status_id(status)
         if id_status == -1:
-            status = input(
+            status = input_non_empty(
                 "Nie znaleziono takiego statusu, podaj status ponownie, dostepne statusy to: Dostępna / Wypożyczona / Zarezerwowana ")
         else:
             break
