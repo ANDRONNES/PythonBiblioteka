@@ -93,7 +93,8 @@ def edit_book():
 2. Numer_ISBN 
 3. Wydawnictwo
 4. Liczba_stron
-5. Status\n''')
+5. Status
+6. Wyjdź\n''')
 
             try:
                 match whatToEdit:
@@ -133,6 +134,8 @@ def edit_book():
                         cursor.execute('UPDATE Ksiazka SET Status_id_statusu = ? WHERE id_ksiazki =?',(id_status, id_ksiazki))
                         conn.commit()
                         print("Status ksiązki został zmieniony")
+                    case 6:
+                        return -1
                     case _:
                         print("Nie rozpoznano operacji, spróbuj ponownie")
             except Unknown_Operation_Exception:

@@ -119,7 +119,8 @@ def edit_rent():
 1. Książka
 2. Czytelnik 
 3. Data_Wypozyczenia
-4. Data_Zwrotu\n''')
+4. Data_Zwrotu
+5. Wyjdź\n''')
 
             match whatToEdit:
                 case 1:
@@ -220,6 +221,7 @@ def edit_rent():
                             INSERT INTO Historia(Czytelnik_id_czytelnika,Ksiazka_id_ksiazki,opis_operacji,data)
                             VALUES (?,?,?,?)''', (values[0], values[1], "Przeniesienie zakończenia wypozyczenia", date.today()))
 
+
                             # jak i rezerwacja, czy nie jest to przedłużenie???
 
                             cursor.execute('UPDATE Wypozyczenie SET Data_Wypozyczenia = ? Where id_wypozyczenia = ?',(Data_Zwrotu, id_wypozyczenia,))
@@ -229,6 +231,8 @@ def edit_rent():
                         raise InvalidDateFormat_Exception
                     except DataConflictException:
                         print("Data zwrotu nie może być wcześniej niż data wypozyczenia")
+                case 5:
+                    return -1
     except BookNotAvaliable_Exception:
         print("Książka nie jest dostępna")
 

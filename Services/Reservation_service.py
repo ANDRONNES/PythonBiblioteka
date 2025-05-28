@@ -127,7 +127,8 @@ def edit_reservation():
 1. Zmień książkę
 2. Zmień czytelnika
 3. Zmień Datę rospoczęcia rezerwacji
-4. Zmień Datę zakończenia rezerwacji\n''')
+4. Zmień Datę zakończenia rezerwacji
+5. Wyjdź\n''')
 
             match whatToEdit:
                 case 1:
@@ -245,5 +246,7 @@ def edit_reservation():
                         print("Nieprawidłowy format daty")
                     except DataConflictException:
                         print("Data zakoczenia nie może być wcześniej niż data rozpoczecia")
+                case 5:
+                    return -1
     except Invalid_RezerwacjaId_Exception:
         print("Nie ma rezerwacji o takim ID")

@@ -78,7 +78,8 @@ def edit_reader():
 1. Imie
 2. Nazwisko 
 3. Numer_Telefonu
-4. Adres\n''')
+4. Adres
+5. Wyjdź\n''')
             match whatToEdit:
                 case 1:
                     newImie = input("Podaj nowe Imie ")
@@ -102,12 +103,15 @@ def edit_reader():
                             conn.commit()
                     except Invalid_NumerTelefonu_Exception:
                         print("Numer telefonu może składać się tylko z cyfr")
+                case 5:
+                    return -1
                 case 4:
                     whatToEdit2 = validated_input('''Wybierz parametr który chcesz edytować: 
 1. Numer mieszkania
 2. Numer domu 
 3. Ulica
-4. Miasto\n''')
+4. Miasto
+5. Wyjdź\n''')
                     match whatToEdit2:
                         case 1:
                             Numer_Mieszkania = validated_input("Podaj nowy numer mieszkania czytelnika ")
@@ -150,7 +154,8 @@ def edit_reader():
                             except DataConflictException:
                                 print("Niepoprawnie wprowadziłeś dane")
 
-
+                        case 5:
+                            return -1
     except Invalid_CzytelnikId_Exception:
         print("Nie istnieje czytelnika o podanym id")
 

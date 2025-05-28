@@ -29,7 +29,7 @@ while (True):
                 case 2:
                     delete_reader()
                 case 3:
-                    edit_reader()
+                     if edit_reader() == -1: continue
                 case 4:
                     print(tabulate(get_all_readers(), headers='keys', tablefmt='fancy_grid'))
                 case 5:
@@ -71,7 +71,7 @@ while (True):
                 case 2:
                     delete_book()
                 case 3:
-                    edit_book()
+                    if edit_book() == -1: continue
                 case 4:
                     print(tabulate(get_all_books(), headers='keys', tablefmt='fancy_grid'))
                 case 5:
@@ -95,7 +95,7 @@ while (True):
                 case 2:
                     delete_rent()
                 case 3:
-                    edit_rent()
+                    if edit_rent() == -1: continue
                 case 4:
                     return_book()
                 case 5:
@@ -121,7 +121,7 @@ while (True):
                 case 2:
                     delete_reservation()
                 case 3:
-                    edit_reservation()
+                    if edit_reservation() == -1: continue
                 case 4:
                     print(tabulate(get_all_reservations(), headers='keys', tablefmt='fancy_grid'))
                 case 5:
